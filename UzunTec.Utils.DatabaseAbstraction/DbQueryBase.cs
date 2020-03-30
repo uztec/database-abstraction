@@ -3,13 +3,13 @@ using System.Data;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
-    public class DBbase
+    public class DbQueryBase :IDbQueryBase
     {
         private IDbTransaction dbTransaction;
         private IDbCommand lastCommand;
         private readonly IDbConnection dbConnection;
 
-        public DBbase(IDbConnection connection)
+        public DbQueryBase(IDbConnection connection)
         {
             this.dbConnection = connection;
         }
@@ -50,23 +50,23 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         #endregion
 
-        #region GetDataTable
+        #region GetResultTable
 
-        public DataTable GetDataTable(string queryString)
+        public DataResultTable GetResultTable(string queryString)
         {
-            return this.GetDataTable(queryString, new DataBaseParameter[0]);
+            return this.GetResultTable(queryString, new DataBaseParameter[0]);
         }
 
-        private DataTable GetDataTable(string queryString, IDbTransaction trans)
+        private DataResultTable GetResultTable(string queryString, IDbTransaction trans)
         {
-            return this.GetDataTable(queryString, trans, null);
+            return this.GetResultTable(queryString, trans, null);
         }
 
-        public DataTable GetDataTable(string queryString, DataBaseParameter[] parameters)
+        public DataResultTable GetResultTable(string queryString, DataBaseParameter[] parameters)
         {
             if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
             {
-                return this.GetDataTable(queryString, this.dbTransaction, parameters);
+                return this.GetResultTable(queryString, this.dbTransaction, parameters);
             }
 
             if (this.dbConnection.State == ConnectionState.Closed)
@@ -75,99 +75,47 @@ namespace UzunTec.Utils.DatabaseAbstraction
             }
 
             this.lastCommand = this.dbConnection.CreateCommand(queryString, parameters);
-            return this.ReaderToDataTable(this.lastCommand.ExecuteReader());
+            return new DataResultTable(this.lastCommand.ExecuteReader());
         }
 
-        private DataTable GetDataTable(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
+        private DataResultTable GetResultTable(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
         {
             if (trans == null)
             {
-                return this.GetDataTable(queryString, parameters);
+                return this.GetResultTable(queryString, parameters);
             }
 
             this.lastCommand = trans.Connection.CreateCommand(queryString, parameters);
             this.lastCommand.Transaction = trans;
-            return this.ReaderToDataTable(this.lastCommand.ExecuteReader());
+            return new DataResultTable(this.lastCommand.ExecuteReader());
         }
 
-        private DataTable ReaderToDataTable(IDataReader reader)
-        {
-            DataTable dt = new DataTable();
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                DataColumn col = new DataColumn(reader.GetName(i), reader.GetFieldType(i));
-                dt.Columns.Add(col);
-            }
-
-            while (reader.Read())
-            {
-                DataRow row = dt.NewRow();
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    row[i] = reader[i];
-                }
-
-                dt.Rows.Add(row);
-            }
-
-            reader.Close();
-
-            return dt;
-        }
         #endregion
 
-        #region GetDataRow
+        #region GetSingleRecord
 
-        public DataRow GetDataRow(string queryString)
+        public DataResultRecord GetSingleRecord(string queryString)
         {
-            DataTable dt = this.GetDataTable(queryString);
-            if (dt.Rows.Count == 1)
-            {
-                return dt.Rows[0];
-            }
-            else
-            {
-                return null;
-            }
+            DataResultTable dt = this.GetResultTable(queryString);
+            return (dt.Count == 1) ? dt[0] : null;
         }
 
-        public DataRow GetDataRow(string queryString, DataBaseParameter[] parameters)
+        public DataResultRecord GetSingleRecord(string queryString, DataBaseParameter[] parameters)
         {
-            DataTable dt = this.GetDataTable(queryString, parameters);
-            if (dt.Rows.Count == 1)
-            {
-                return dt.Rows[0];
-            }
-            else
-            {
-                return null;
-            }
+            DataResultTable dt = this.GetResultTable(queryString, parameters);
+            return (dt.Count == 1) ? dt[0] : null;
         }
 
-        private DataRow GetDataRow(string queryString, IDbTransaction trans)
+        private DataResultRecord GetSingleRecord(string queryString, IDbTransaction trans)
         {
-            DataTable dt = this.GetDataTable(queryString, trans);
-            if (dt.Rows.Count == 1)
-            {
-                return dt.Rows[0];
-            }
-            else
-            {
-                return null;
-            }
+            DataResultTable dt = this.GetResultTable(queryString, trans);
+            return (dt.Count == 1) ? dt[0] : null;
         }
 
-        private DataRow GetDataRow(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
+        private DataResultRecord GetSingleRecord(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
         {
-            DataTable dt = this.GetDataTable(queryString, trans, parameters);
-            if (dt.Rows.Count == 1)
-            {
-                return dt.Rows[0];
-            }
-            else
-            {
-                return null;
-            }
+            DataResultTable dt = this.GetResultTable(queryString, trans, parameters);
+            return (dt.Count == 1) ? dt[0] : null;
         }
 
         #endregion

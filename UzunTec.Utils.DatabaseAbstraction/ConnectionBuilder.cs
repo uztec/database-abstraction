@@ -35,7 +35,6 @@ namespace UzunTec.Utils.DatabaseAbstraction
                     databaseName, server, user, password);
         }
 
-
         public IDbConnection BuildConnection(string connectionString)
         {
             IDbConnection connection = this.dbFactory.CreateConnection();

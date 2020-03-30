@@ -6,11 +6,11 @@ using UzunTec.Utils.Common;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
-    public class DataResultTable : List<DataResulRecord>
+    public class DataResultTable : List<DataResultRecord>
     {
         public IReadOnlyDictionary<string, Type> Fields { get; }
 
-        private DataResultTable(IDataReader reader)
+        internal DataResultTable(IDataReader reader)
         {
             Dictionary<string, Type> cols = new Dictionary<string, Type>();
             for (int i = 0; i < reader.FieldCount; i++)
@@ -20,12 +20,12 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
             while (reader.Read())
             {
-                this.Add(new DataResulRecord(reader));
+                this.Add(new DataResultRecord(reader));
             }
             reader.Close();
         }
 
-        public void InsertRecord(int index, DataResulRecord record)
+        public void InsertRecord(int index, DataResultRecord record)
         {
             if (record.Keys.CompareTo(new List<string>(this.Fields.Keys)) != 0)
             {
@@ -34,9 +34,19 @@ namespace UzunTec.Utils.DatabaseAbstraction
             this.Insert(index, record);
         }
 
-        public void AddRecord(DataResulRecord record)
+        public void AddRecord(DataResultRecord record)
         {
             this.InsertRecord(this.Count, record);
+        }
+
+        public List<T> BuildList<T>(Func<DataResultRecord, T> buildObjectFunction)
+        {
+            List<T> list = new List<T>();
+            foreach (DataResultRecord record in this)
+            {
+                list.Add(buildObjectFunction(record));
+            }
+            return list;
         }
     }
 }

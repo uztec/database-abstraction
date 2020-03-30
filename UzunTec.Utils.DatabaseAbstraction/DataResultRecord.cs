@@ -4,9 +4,9 @@ using System.Data;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
-    public class DataResulRecord : Dictionary<string, object>, IDictionary<string, object>, IReadOnlyDictionary<string, object>
+    public class DataResultRecord : Dictionary<string, object>, IDictionary<string, object>, IReadOnlyDictionary<string, object>
     {
-        public DataResulRecord(IDataReader reader)
+        internal DataResultRecord(IDataReader reader)
         {
             for (int i = 0; i < reader.FieldCount; i++)
             {
@@ -17,7 +17,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
         public T? GetNullableValue<T>(string ColumnName) where T : struct
         {
             object value = (this[ColumnName] == System.DBNull.Value) ? null : this[ColumnName];
-            return (value == null) ? (T?) null : (T)Convert.ChangeType(value, typeof(T));
+            return (value == null) ? (T?)null : (T)Convert.ChangeType(value, typeof(T));
         }
 
         public T GetValue<T>(string ColumnName) where T : struct
