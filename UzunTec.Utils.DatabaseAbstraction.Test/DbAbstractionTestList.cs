@@ -25,6 +25,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 UserName = "Test User1",
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything"),
+                Status = StatusUser.Guest,
             });
 
             insertedList.Add(22, new User
@@ -33,6 +34,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 UserName = "Test User2",
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything-else"),
+                Status = StatusUser.Admin,
             });
 
             insertedList.Add(23, new User
@@ -41,6 +43,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 UserName = "Test User 3",
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("otherthing"),
+                Status = StatusUser.User,
             });
 
 
@@ -65,7 +68,5 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 Assert.True(this.client.Delete(cod));
             }
         }
-               
-
     }
 }

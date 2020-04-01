@@ -14,21 +14,31 @@ namespace UzunTec.Utils.DatabaseAbstraction
             }
         }
 
-        public T? GetNullableValue<T>(string ColumnName) where T : struct
+        public string GetString(string columnName)
         {
-            object value = (this[ColumnName] == System.DBNull.Value) ? null : this[ColumnName];
+            return (this[columnName] == System.DBNull.Value) ? null : (string)this[columnName];
+        }
+
+        public T GetValue<T>(string columnName) where T : struct
+        {
+            return this.GetNullableValue<T>(columnName) ?? default(T);
+        }
+
+        public T? GetNullableValue<T>(string columnName) where T : struct
+        {
+            object value = (this[columnName] == DBNull.Value) ? null : this[columnName];
             return (value == null) ? (T?)null : (T)Convert.ChangeType(value, typeof(T));
         }
 
-        public T GetValue<T>(string ColumnName) where T : struct
+        public T GetEnum<T>(string columnName) where T : struct, Enum
         {
-            object value = (this[ColumnName] == System.DBNull.Value) ? null : this[ColumnName];
-            return (value == null) ? default(T) : (T)Convert.ChangeType(value, typeof(T));
+            return this.GetNullableEnum<T>(columnName) ?? default(T);
         }
 
-        public string GetString(string ColumnName)
+        public T? GetNullableEnum<T>(string columnName) where T : struct, Enum
         {
-            return (this[ColumnName] == System.DBNull.Value) ? null : (string)this[ColumnName];
+            object value = (this[columnName] == DBNull.Value) ? null : this[columnName];
+            return EnumUtils.GetEnumValue<T>(value);
         }
     }
 }

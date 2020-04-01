@@ -14,7 +14,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         public bool Insert(User user)
         {
-            return this.dbUser.Insert(user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.InputDate);
+            return this.dbUser.Insert(user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.InputDate, user.Status);
         }
 
         public bool Delete(int userCode)
@@ -24,7 +24,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         public bool Update(int oldCode, User user)
         {
-            return this.dbUser.Update(oldCode, user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.InputDate) > 0;
+            return this.dbUser.Update(oldCode, user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.InputDate, user.Status) > 0;
         }
 
         public User FindByID(int ID)
@@ -51,6 +51,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 UserCodRef = dr.GetNullableValue<long>("COD_USER_REF"),
                 PasswordMd5 = dr.GetString("PASSWORD_MD5"),
                 InputDate = dr.GetValue<DateTime>("INPUT_DATE"),
+                Status = dr.GetEnum<StatusUser>("USER_STATUS")
             };
         }
     }

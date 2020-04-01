@@ -10,7 +10,11 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
         public DBBootstrap(IDbConnection connection) : base(connection)
         {
             string fullSql = File.ReadAllText("DbScript.sql").Replace("@DBNAME", this.dbName);
-            base.ExecuteNonQuery(fullSql);
+
+            foreach (string sql in fullSql.Split(";"))
+            {
+                base.ExecuteNonQuery(sql);
+            }
         }
 
 

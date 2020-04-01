@@ -27,7 +27,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         internal DataResultRecord FindByCode(int userCode)
         {
-            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE
+            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, USER_STATUS
 	                                    FROM USER_TEST
                                         WHERE COD_USER = @COD_USER";
 
@@ -39,10 +39,10 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             return this.dbBase.GetSingleRecord(queryString, parameters);
         }
 
-        internal bool Insert(int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime inputDate)
+        internal bool Insert(int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime inputDate, StatusUser status)
         {
-            string queryString = @" INSERT INTO USER_TEST (COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE)
-                                        VALUES(@COD_USER, @USER_NAME, @COD_USER_REF, @PASSWORD_MD5, @INPUT_DATE)";
+            string queryString = @" INSERT INTO USER_TEST (COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, USER_STATUS)
+                                        VALUES(@COD_USER, @USER_NAME, @COD_USER_REF, @PASSWORD_MD5, @INPUT_DATE, @USER_STATUS)";
 
             DataBaseParameter[] parameters = new DataBaseParameter[]
             {
@@ -51,6 +51,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 new DataBaseParameter("COD_USER_REF", userCodeRef),
                 new DataBaseParameter("PASSWORD_MD5", passwordMd5),
                 new DataBaseParameter("INPUT_DATE", inputDate),
+                new DataBaseParameter("USER_STATUS", (char)status),
             };
 
 
@@ -73,14 +74,15 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             return (deleted == 1);
         }
 
-        internal int Update(int oldCode, int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime inputDate)
+        internal int Update(int oldCode, int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime inputDate, StatusUser status)
         {
             string queryString = @" UPDATE USER_TEST
                                         SET COD_USER = @COD_USER,
                                             USER_NAME = @USER_NAME,
                                             COD_USER_REF = @COD_USER_REF,
                                             PASSWORD_MD5 = @PASSWORD_MD5,
-                                            INPUT_DATE = @INPUT_DATE
+                                            INPUT_DATE = @INPUT_DATE,
+                                            USER_STATUS = @USER_STATUS
                                        WHERE COD_USER = @OLD_COD_USER";
 
             DataBaseParameter[] parameters = new DataBaseParameter[]
@@ -91,6 +93,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 new DataBaseParameter("COD_USER_REF", userCodeRef),
                 new DataBaseParameter("PASSWORD_MD5", passwordMd5),
                 new DataBaseParameter("INPUT_DATE", inputDate),
+                new DataBaseParameter("USER_STATUS", (char)status),
            };
 
             return this.dbBase.ExecuteNonQuery(queryString, parameters);
@@ -98,7 +101,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         internal DataResultTable ListAll()
         {
-            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE
+            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, USER_STATUS
 	                                    FROM USER_TEST";
 
             return this.dbBase.GetResultTable(queryString);
