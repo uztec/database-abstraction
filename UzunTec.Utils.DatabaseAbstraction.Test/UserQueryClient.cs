@@ -17,6 +17,17 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             return this.dbUser.Insert(user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.InputDate, user.Status);
         }
 
+        public bool Delete(params int[] userCodes)
+        {
+            bool output = true;
+            foreach (int userCode in userCodes)
+            {
+                output &= this.Delete(userCode);
+            }
+
+            return output;
+        }
+
         public bool Delete(int userCode)
         {
             return this.dbUser.Delete(userCode);

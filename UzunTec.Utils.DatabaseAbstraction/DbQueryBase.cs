@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Data;
+using UzunTec.Utils.DatabaseAbstraction.Pagination;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
-    public class DbQueryBase :IDbQueryBase
+    public class DbQueryBase : IDbQueryBase
     {
         private IDbTransaction dbTransaction;
-        private IDbCommand lastCommand;
         private readonly IDbConnection dbConnection;
+        private readonly IPaginationFactory paginationFactory;
 
-        public DbQueryBase(IDbConnection connection)
+        public DatabaseDialect Dialect { get; }
+
+        public DbQueryBase(IDbConnection connection, DatabaseDialect dialect)
         {
             this.dbConnection = connection;
+            this.Dialect = dialect;
+            this.paginationFactory = PaginationAbstractFactory.GetObject(dialect);
         }
 
         #region IDbTransaction
@@ -47,8 +52,93 @@ namespace UzunTec.Utils.DatabaseAbstraction
             this.dbConnection.Close();
             this.dbTransaction = null;
         }
-
         #endregion
+
+        private readonly object queryLocking = new object();
+
+        T SafeRunQuery<T>(IDbConnection conn, string queryString, DataBaseParameter[] parameters, Func<IDbCommand, T> executionFunc) where T : class
+        {
+            lock (this.queryLocking)
+            {
+                if (conn.State == ConnectionState.Closed)
+                {
+                    conn.Open();
+                }
+
+                T output = null;
+                using (IDbCommand command = conn.CreateCommand(queryString, parameters))
+                {
+                    output = executionFunc(command);
+                    command.Dispose();
+                }
+                return output;
+            }
+        }
+
+
+        //T SafeRunQuery<T>(IDbConnection conn, string queryString, DataBaseParameter[] parameters, Func<IDbCommand, T> executionFunc) where T : class
+        //{
+        //    T output = null;
+        //    bool done = false;
+        //    int tries = 15;
+        //    while (!done && tries-- > 0)
+        //    {
+        //        try
+        //        {
+        //            if (conn.State == ConnectionState.Closed)
+        //            {
+        //                conn.Open();
+        //            }
+
+        //            using (IDbCommand command = conn.CreateCommand(queryString, parameters))
+        //            {
+        //                output = executionFunc(command);
+        //                done = (output != null);
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            System.Diagnostics.Debug.Write(ex);
+        //            if (tries == 0)
+        //            {
+        //                throw ex;
+        //            }
+        //            System.Threading.Thread.Sleep(100);
+        //        }
+        //    }
+        //    return output;
+        //}
+
+
+        #region Pagination Engine
+        public DataResultTable GetLimitedRecords(string queryString, int offset, int count)
+        {
+            return this.GetLimitedRecords(queryString, new DataBaseParameter[0], offset, count);
+        }
+
+        public DataResultTable GetLimitedRecords(string queryString, DataBaseParameter[] parameters, int offset, int count)
+        {
+            offset = (offset < 0) ? 0 : offset;
+            count = (count < 1) ? 1 : count;
+            string paginatedQueryString = this.paginationFactory.AddPagination(queryString, offset, count);
+            return this.GetResultTable(paginatedQueryString, parameters);
+        }
+
+        public DataResultTable GetPagedResultTable(string queryString, int page, int pageSize)
+        {
+            return this.GetPagedResultTable(queryString, new DataBaseParameter[0], page, pageSize);
+        }
+
+        public DataResultTable GetPagedResultTable(string queryString, DataBaseParameter[] parameters, int page, int pageSize)
+        {
+            page = (page < 1) ? 1 : page;
+            pageSize = (pageSize < 1) ? 1 : pageSize;
+            int offset = (page - 1) * pageSize;
+            string paginatedQueryString = this.paginationFactory.AddPagination(queryString, offset, pageSize);
+            return this.GetResultTable(paginatedQueryString, parameters);
+        }
+        #endregion
+
 
         #region GetResultTable
 
@@ -61,6 +151,15 @@ namespace UzunTec.Utils.DatabaseAbstraction
         {
             return this.GetResultTable(queryString, trans, null);
         }
+        public DataResultTable GetResultTable(string queryString, int limit)
+        {
+            return this.GetResultTable(this.paginationFactory.AddLimit(queryString, limit));
+        }
+
+        public DataResultTable GetResultTable(string queryString, DataBaseParameter[] parameters, int limit)
+        {
+            return this.GetResultTable(this.paginationFactory.AddLimit(queryString, limit), parameters);
+        }
 
         public DataResultTable GetResultTable(string queryString, DataBaseParameter[] parameters)
         {
@@ -69,13 +168,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.GetResultTable(queryString, this.dbTransaction, parameters);
             }
 
-            if (this.dbConnection.State == ConnectionState.Closed)
+            return this.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
             {
-                this.dbConnection.Open();
-            }
-
-            this.lastCommand = this.dbConnection.CreateCommand(queryString, parameters);
-            return new DataResultTable(this.lastCommand.ExecuteReader());
+                return new DataResultTable(command.ExecuteReader());
+            });
         }
 
         private DataResultTable GetResultTable(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
@@ -85,9 +181,40 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.GetResultTable(queryString, parameters);
             }
 
-            this.lastCommand = trans.Connection.CreateCommand(queryString, parameters);
-            this.lastCommand.Transaction = trans;
-            return new DataResultTable(this.lastCommand.ExecuteReader());
+            return this.SafeRunQuery(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            {
+                command.Transaction = trans;
+                return new DataResultTable(command.ExecuteReader());
+            });
+        }
+
+        public DataResultTable GetResultTableFromProcedure(string queryString, DataBaseParameter[] parameters)
+        {
+            if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
+            {
+                return this.GetResultTableFromProcedure(queryString, this.dbTransaction, parameters);
+            }
+
+            return this.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                return new DataResultTable(command.ExecuteReader());
+            });
+        }
+
+        private DataResultTable GetResultTableFromProcedure(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
+        {
+            if (trans == null)
+            {
+                return this.GetResultTableFromProcedure(queryString, parameters);
+            }
+
+            return this.SafeRunQuery(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            {
+                command.Transaction = trans;
+                command.CommandType = CommandType.StoredProcedure;
+                return new DataResultTable(command.ExecuteReader());
+            });
         }
 
         #endregion
@@ -145,14 +272,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.ExecuteNonQuery(queryString, this.dbTransaction, parameters);
             }
 
-            if (this.dbConnection.State == ConnectionState.Closed)
+            return (int)this.SafeRunQuery<object>(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
             {
-                this.dbConnection.Open();
-            }
-
-            this.lastCommand = this.dbConnection.CreateCommand(queryString, parameters);
-            int RowsAffected = this.lastCommand.ExecuteNonQuery();
-            return RowsAffected;
+                return command.ExecuteNonQuery();
+            });
 
         }
 
@@ -166,10 +289,12 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.ExecuteNonQuery(queryString, parameters);
             }
 
-            this.lastCommand = trans.Connection.CreateCommand(queryString, parameters);
-            this.lastCommand.Transaction = trans;
-            int RowsAffected = this.lastCommand.ExecuteNonQuery();
-            return RowsAffected;
+            return (int)this.SafeRunQuery<object>(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            {
+                command.Transaction = trans;
+                return command.ExecuteNonQuery();
+            });
+
         }
 
         #endregion
@@ -193,12 +318,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.ExecuteNonQuery(queryString, this.dbTransaction, parameters);
             }
 
-            if (this.dbConnection.State == ConnectionState.Closed)
+            return this.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
             {
-                this.dbConnection.Open();
-            }
-            this.lastCommand = this.dbConnection.CreateCommand(queryString, parameters);
-            return this.lastCommand.ExecuteScalar();
+                return command.ExecuteScalar();
+            });
         }
 
         private object ExecuteScalar(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
@@ -207,20 +330,14 @@ namespace UzunTec.Utils.DatabaseAbstraction
             {
                 return this.ExecuteScalar(queryString, parameters);
             }
-            this.lastCommand = trans.Connection.CreateCommand(queryString, parameters);
-            this.lastCommand.Transaction = trans;
-            return this.lastCommand.ExecuteScalar();
+
+            return this.SafeRunQuery(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            {
+                command.Transaction = trans;
+                return command.ExecuteScalar();
+            });
         }
 
         #endregion
-
-        public long GetLastInsertedID()
-        {
-            string getIDENTITY = @"SELECT @@IDENTITY";
-            IDbCommand newCommand = this.lastCommand.Connection.CreateCommand(getIDENTITY);
-            newCommand.Transaction = this.dbTransaction;
-            return Convert.ToInt64(newCommand.ExecuteScalar());
-        }
-
     }
 }

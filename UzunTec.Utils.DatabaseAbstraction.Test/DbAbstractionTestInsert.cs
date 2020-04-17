@@ -16,6 +16,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
         [Fact]
         public void InsertUserWithCodRefTest()
         {
+            this.client.Delete(91);
             User userToInsert = new User
             {
                 UserCode = 91,
@@ -26,8 +27,10 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 Status = StatusUser.User,
             };
 
+            client.Delete(userToInsert.UserCode);  // Avoid Duplicates
+
             Assert.True(client.Insert(userToInsert));
-            User insertedUser = client.FindByCode(91);
+            User insertedUser = client.FindByCode(userToInsert.UserCode);
             Assert.NotNull(insertedUser);
             AssertExt.UsersTheSame(userToInsert, insertedUser);
             Assert.True(client.Delete(insertedUser.UserCode));
@@ -37,6 +40,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
         [Fact]
         public void InsertUserWithoutCodRefTest()
         {
+            this.client.Delete(92);
             User userToInsert = new User
             {
                 UserCode = 92,
@@ -46,8 +50,10 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 Status = StatusUser.Guest,
             };
 
+            client.Delete(userToInsert.UserCode);  // Avoid Duplicates
+
             Assert.True(client.Insert(userToInsert));
-            User insertedUser = client.FindByCode(92);
+            User insertedUser = client.FindByCode(userToInsert.UserCode);
             Assert.NotNull(insertedUser);
             AssertExt.UsersTheSame(insertedUser, userToInsert);
             Assert.True(client.Delete(insertedUser.UserCode));

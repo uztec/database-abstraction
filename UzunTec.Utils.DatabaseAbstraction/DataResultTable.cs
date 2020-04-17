@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using UzunTec.Utils.Common;
@@ -22,6 +21,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             {
                 this.Add(new DataResultRecord(reader));
             }
+
             reader.Close();
         }
 

@@ -7,13 +7,16 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
     {
         private readonly string dbName = "UZTEC_DB_ABSTRACTION_TEST";
 
-        public DBBootstrap(IDbConnection connection) : base(connection)
+        public DBBootstrap(IDbConnection connection, DatabaseDialect dialect) : base(connection, dialect)
         {
-            string fullSql = File.ReadAllText("DbScript.sql").Replace("@DBNAME", this.dbName);
-
-            foreach (string sql in fullSql.Split(";"))
+            if (dialect == DatabaseDialect.SqlServer)
             {
-                base.ExecuteNonQuery(sql);
+                string fullSql = File.ReadAllText("DbScript.sql").Replace("@DBNAME", this.dbName);
+
+                foreach (string sql in fullSql.Split(";"))
+                {
+                    base.ExecuteNonQuery(sql);
+                }
             }
         }
 
