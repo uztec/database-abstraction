@@ -9,17 +9,12 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         public DBBootstrap(IDbConnection connection, DatabaseDialect dialect) : base(connection, dialect)
         {
-            if (dialect == DatabaseDialect.SqlServer)
-            {
-                string fullSql = File.ReadAllText("DbScript.sql").Replace("@DBNAME", this.dbName);
+            string fullSql = File.ReadAllText("DbScript.sql").Replace("@DBNAME", this.dbName);
 
-                foreach (string sql in fullSql.Split(";"))
-                {
-                    base.ExecuteNonQuery(sql);
-                }
+            foreach (string sql in fullSql.Split(";"))
+            {
+                base.ExecuteNonQuery(sql);
             }
         }
-
-
     }
 }
