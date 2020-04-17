@@ -56,7 +56,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         private readonly object queryLocking = new object();
 
-        T SafeRunQuery<T>(IDbConnection conn, string queryString, DataBaseParameter[] parameters, Func<IDbCommand, T> executionFunc) where T : class
+        private T SafeRunQuery<T>(IDbConnection conn, string queryString, DataBaseParameter[] parameters, Func<IDbCommand, T> executionFunc) where T : class
         {
             lock (this.queryLocking)
             {
@@ -69,46 +69,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 using (IDbCommand command = conn.CreateCommand(queryString, parameters))
                 {
                     output = executionFunc(command);
-                    command.Dispose();
                 }
                 return output;
             }
         }
-
-
-        //T SafeRunQuery<T>(IDbConnection conn, string queryString, DataBaseParameter[] parameters, Func<IDbCommand, T> executionFunc) where T : class
-        //{
-        //    T output = null;
-        //    bool done = false;
-        //    int tries = 15;
-        //    while (!done && tries-- > 0)
-        //    {
-        //        try
-        //        {
-        //            if (conn.State == ConnectionState.Closed)
-        //            {
-        //                conn.Open();
-        //            }
-
-        //            using (IDbCommand command = conn.CreateCommand(queryString, parameters))
-        //            {
-        //                output = executionFunc(command);
-        //                done = (output != null);
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            System.Diagnostics.Debug.Write(ex);
-        //            if (tries == 0)
-        //            {
-        //                throw ex;
-        //            }
-        //            System.Threading.Thread.Sleep(100);
-        //        }
-        //    }
-        //    return output;
-        //}
-
 
         #region Pagination Engine
         public DataResultTable GetLimitedRecords(string queryString, int offset, int count)
