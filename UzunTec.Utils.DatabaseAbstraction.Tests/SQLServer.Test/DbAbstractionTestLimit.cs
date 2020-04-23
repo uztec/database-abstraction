@@ -2,13 +2,14 @@ using Xunit;
 
 namespace UzunTec.Utils.DatabaseAbstraction.Test
 {
+    [Collection("BootstrapCollectionFixture")]
     public class DbAbstractionTestLimit
     {
         private readonly IDbQueryBase client;
 
-        public DbAbstractionTestLimit()
+        public DbAbstractionTestLimit(BootstrapFixture bootstrap)
         {
-            this.client = DbAbstractionTestContainer.INSTANCE.GetInstance<IDbQueryBase>();
+            this.client = bootstrap.GetInstance<IDbQueryBase>();
         }
 
         [Fact]

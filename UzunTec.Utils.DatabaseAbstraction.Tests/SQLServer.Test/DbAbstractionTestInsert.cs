@@ -4,13 +4,14 @@ using Xunit;
 
 namespace UzunTec.Utils.DatabaseAbstraction.Test
 {
+    [Collection("BootstrapCollectionFixture")]
     public class DbAbstractionTestInsert
     {
         private readonly UserQueryClient client;
 
-        public DbAbstractionTestInsert()
+        public DbAbstractionTestInsert(BootstrapFixture bootstrap)
         {
-            this.client = DbAbstractionTestContainer.INSTANCE.GetInstance<UserQueryClient>();
+            this.client = bootstrap.GetInstance<UserQueryClient>();
         }
 
         [Fact]
@@ -27,13 +28,13 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 Status = StatusUser.User,
             };
 
-            client.Delete(userToInsert.UserCode);  // Avoid Duplicates
+            this.client.Delete(userToInsert.UserCode);  // Avoid Duplicates
 
-            Assert.True(client.Insert(userToInsert));
-            User insertedUser = client.FindByCode(userToInsert.UserCode);
+            Assert.True(this.client.Insert(userToInsert));
+            User insertedUser = this.client.FindByCode(userToInsert.UserCode);
             Assert.NotNull(insertedUser);
             AssertExt.UsersTheSame(userToInsert, insertedUser);
-            Assert.True(client.Delete(insertedUser.UserCode));
+            Assert.True(this.client.Delete(insertedUser.UserCode));
         }
 
 
@@ -50,13 +51,13 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 Status = StatusUser.Guest,
             };
 
-            client.Delete(userToInsert.UserCode);  // Avoid Duplicates
+            this.client.Delete(userToInsert.UserCode);  // Avoid Duplicates
 
-            Assert.True(client.Insert(userToInsert));
-            User insertedUser = client.FindByCode(userToInsert.UserCode);
+            Assert.True(this.client.Insert(userToInsert));
+            User insertedUser = this.client.FindByCode(userToInsert.UserCode);
             Assert.NotNull(insertedUser);
             AssertExt.UsersTheSame(insertedUser, userToInsert);
-            Assert.True(client.Delete(insertedUser.UserCode));
+            Assert.True(this.client.Delete(insertedUser.UserCode));
         }
     }
 }

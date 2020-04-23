@@ -3,13 +3,14 @@ using Xunit;
 
 namespace UzunTec.Utils.DatabaseAbstraction.Test
 {
+    [Collection("BootstrapCollectionFixture")]
     public class DbAbstractionTestPaging
     {
         private readonly IDbQueryBase client;
 
-        public DbAbstractionTestPaging()
+        public DbAbstractionTestPaging(BootstrapFixture bootstrap)
         {
-            this.client = DbAbstractionTestContainer.INSTANCE.GetInstance<IDbQueryBase>();
+            this.client = bootstrap.GetInstance<IDbQueryBase>();
         }
 
         [Fact]
