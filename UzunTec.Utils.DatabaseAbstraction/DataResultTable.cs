@@ -48,5 +48,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
             }
             return list;
         }
+
+        public DataResultRecord SingleRecord()
+        {
+            return (this.Count == 1) ? this[0] : null;
+        }
     }
 }

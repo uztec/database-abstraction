@@ -191,26 +191,22 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         public DataResultRecord GetSingleRecord(string queryString)
         {
-            DataResultTable dt = this.GetResultTable(queryString);
-            return (dt.Count == 1) ? dt[0] : null;
+            return this.GetResultTable(queryString).SingleRecord();
         }
 
         public DataResultRecord GetSingleRecord(string queryString, DataBaseParameter[] parameters)
         {
-            DataResultTable dt = this.GetResultTable(queryString, parameters);
-            return (dt.Count == 1) ? dt[0] : null;
+            return this.GetResultTable(queryString, parameters).SingleRecord();
         }
 
         private DataResultRecord GetSingleRecord(string queryString, IDbTransaction trans)
         {
-            DataResultTable dt = this.GetResultTable(queryString, trans);
-            return (dt.Count == 1) ? dt[0] : null;
+            return this.GetResultTable(queryString, trans).SingleRecord();
         }
 
         private DataResultRecord GetSingleRecord(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
         {
-            DataResultTable dt = this.GetResultTable(queryString, trans, parameters);
-            return (dt.Count == 1) ? dt[0] : null;
+            return this.GetResultTable(queryString, trans, parameters).SingleRecord();
         }
 
         #endregion
