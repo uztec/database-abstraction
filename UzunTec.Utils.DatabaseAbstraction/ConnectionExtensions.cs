@@ -1,10 +1,11 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
     internal static class ConnectionExtensions
     {
-        public static IDbCommand CreateCommand(this IDbConnection connection, string queryString, DataBaseParameter[] parameters)
+        public static IDbCommand CreateCommand(this IDbConnection connection, string queryString, IEnumerable<DataBaseParameter> parameters)
         {
             IDbCommand command = connection.CreateCommand();
             command.CommandText = queryString;
@@ -17,7 +18,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return connection.CreateCommand(queryString, null);
         }
 
-        public static void FillParamenters(this IDbCommand command, DataBaseParameter[] parameters)
+        public static void FillParamenters(this IDbCommand command, IEnumerable<DataBaseParameter> parameters)
         {
             if (parameters != null)
             {

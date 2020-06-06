@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using UzunTec.Utils.Common;
 using UzunTec.Utils.DatabaseAbstraction.Pagination;
@@ -60,7 +61,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         private readonly object queryLocking = new object();
 
-        private T SafeRunQuery<T>(IDbConnection conn, string queryString, DataBaseParameter[] parameters, Func<IDbCommand, T> executionFunc) where T : class
+        private T SafeRunQuery<T>(IDbConnection conn, string queryString, IEnumerable<DataBaseParameter> parameters, Func<IDbCommand, T> executionFunc) where T : class
         {
             lock (this.queryLocking)
             {
@@ -84,7 +85,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return this.GetLimitedRecords(queryString, new DataBaseParameter[0], offset, count);
         }
 
-        public DataResultTable GetLimitedRecords(string queryString, DataBaseParameter[] parameters, int offset, int count)
+        public DataResultTable GetLimitedRecords(string queryString, IEnumerable<DataBaseParameter> parameters, int offset, int count)
         {
             offset = (offset < 0) ? 0 : offset;
             count = (count < 1) ? 1 : count;
@@ -97,7 +98,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return this.GetPagedResultTable(queryString, new DataBaseParameter[0], page, pageSize);
         }
 
-        public DataResultTable GetPagedResultTable(string queryString, DataBaseParameter[] parameters, int page, int pageSize)
+        public DataResultTable GetPagedResultTable(string queryString, IEnumerable<DataBaseParameter> parameters, int page, int pageSize)
         {
             page = (page < 1) ? 1 : page;
             pageSize = (pageSize < 1) ? 1 : pageSize;
@@ -115,21 +116,17 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return this.GetResultTable(queryString, new DataBaseParameter[0]);
         }
 
-        private DataResultTable GetResultTable(string queryString, IDbTransaction trans)
-        {
-            return this.GetResultTable(queryString, trans, null);
-        }
         public DataResultTable GetResultTable(string queryString, int limit)
         {
             return this.GetResultTable(this.paginationFactory.AddLimit(queryString, limit));
         }
 
-        public DataResultTable GetResultTable(string queryString, DataBaseParameter[] parameters, int limit)
+        public DataResultTable GetResultTable(string queryString, IEnumerable<DataBaseParameter> parameters, int limit)
         {
             return this.GetResultTable(this.paginationFactory.AddLimit(queryString, limit), parameters);
         }
 
-        public DataResultTable GetResultTable(string queryString, DataBaseParameter[] parameters)
+        public DataResultTable GetResultTable(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
             if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
             {
@@ -142,7 +139,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             });
         }
 
-        private DataResultTable GetResultTable(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
+        private DataResultTable GetResultTable(string queryString, IDbTransaction trans, IEnumerable<DataBaseParameter> parameters)
         {
             if (trans == null)
             {
@@ -156,7 +153,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             });
         }
 
-        public DataResultTable GetResultTableFromProcedure(string queryString, DataBaseParameter[] parameters)
+        public DataResultTable GetResultTableFromProcedure(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
             if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
             {
@@ -170,7 +167,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             });
         }
 
-        private DataResultTable GetResultTableFromProcedure(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
+        private DataResultTable GetResultTableFromProcedure(string queryString, IDbTransaction trans, IEnumerable<DataBaseParameter> parameters)
         {
             if (trans == null)
             {
@@ -185,28 +182,31 @@ namespace UzunTec.Utils.DatabaseAbstraction
             });
         }
 
+        private DataResultTable GetResultTableWithSingleRow(string queryString, IEnumerable<DataBaseParameter> parameters)
+        {
+            if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
+            {
+                return this.GetResultTableFromProcedure(queryString, this.dbTransaction, parameters);
+            }
+
+            return this.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
+            {
+                return new DataResultTable(command.ExecuteReader(CommandBehavior.SingleRow));
+            });
+        }
+
         #endregion
 
         #region GetSingleRecord
 
         public DataResultRecord GetSingleRecord(string queryString)
         {
-            return this.GetResultTable(queryString).SingleRecord();
+            return this.GetResultTableWithSingleRow(queryString, new DataBaseParameter[0]).SingleRecord();
         }
 
-        public DataResultRecord GetSingleRecord(string queryString, DataBaseParameter[] parameters)
+        public DataResultRecord GetSingleRecord(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
-            return this.GetResultTable(queryString, parameters).SingleRecord();
-        }
-
-        private DataResultRecord GetSingleRecord(string queryString, IDbTransaction trans)
-        {
-            return this.GetResultTable(queryString, trans).SingleRecord();
-        }
-
-        private DataResultRecord GetSingleRecord(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
-        {
-            return this.GetResultTable(queryString, trans, parameters).SingleRecord();
+            return this.GetResultTableWithSingleRow(queryString, parameters).SingleRecord();
         }
 
         #endregion
@@ -221,15 +221,12 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return this.ExecuteNonQuery(queryString, new DataBaseParameter[0]);
         }
 
-        private int ExecuteNonQuery(string queryString, IDbTransaction trans)
-        {
-            return this.ExecuteNonQuery(queryString, trans, new DataBaseParameter[0]);
-        }
+
 
         /// <summary>
         /// To execute INSERT, UPDATE or DELETE queries with params
         /// </summary>
-        public int ExecuteNonQuery(string queryString, DataBaseParameter[] parameters)
+        public int ExecuteNonQuery(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
             if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
             {
@@ -246,7 +243,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
         /// <summary>
         /// To execute INSERT, UPDATE or DELETE queries with transaction
         /// </summary>
-        private int ExecuteNonQuery(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
+        private int ExecuteNonQuery(string queryString, IDbTransaction trans, IEnumerable<DataBaseParameter> parameters)
         {
             if (trans == null)
             {
@@ -270,16 +267,11 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return this.ExecuteScalar(queryString, new DataBaseParameter[0]);
         }
 
-        private object ExecuteScalar(string queryString, IDbTransaction trans)
-        {
-            return this.ExecuteScalar(queryString, trans, new DataBaseParameter[0]);
-        }
-
-        public object ExecuteScalar(string queryString, DataBaseParameter[] parameters)
+        public object ExecuteScalar(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
             if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
             {
-                return this.ExecuteNonQuery(queryString, this.dbTransaction, parameters);
+                return this.ExecuteScalar(queryString, this.dbTransaction, parameters);
             }
 
             return this.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
@@ -288,7 +280,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             });
         }
 
-        private object ExecuteScalar(string queryString, IDbTransaction trans, DataBaseParameter[] parameters)
+        private object ExecuteScalar(string queryString, IDbTransaction trans, IEnumerable<DataBaseParameter> parameters)
         {
             if (trans == null)
             {
