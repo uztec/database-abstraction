@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UzunTec.Utils.DatabaseAbstraction
+﻿namespace UzunTec.Utils.DatabaseAbstraction
 {
     public enum DatabaseDialect
     {
-        SqlServer, MySql, SQLite
+        NotSet, SqlServer, MySql, SQLite
     }
 }

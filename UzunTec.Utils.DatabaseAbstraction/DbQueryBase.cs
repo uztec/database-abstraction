@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using UzunTec.Utils.Common;
 using UzunTec.Utils.DatabaseAbstraction.Pagination;
 
 namespace UzunTec.Utils.DatabaseAbstraction
@@ -11,6 +12,9 @@ namespace UzunTec.Utils.DatabaseAbstraction
         private readonly IPaginationFactory paginationFactory;
 
         public DatabaseDialect Dialect { get; }
+
+        public DbQueryBase(IDbConnection connection, string engine = null)
+            : this(connection, EnumUtils.GetEnumValue<DatabaseDialect>(engine) ?? DatabaseDialect.NotSet) { }
 
         public DbQueryBase(IDbConnection connection, DatabaseDialect dialect)
         {
