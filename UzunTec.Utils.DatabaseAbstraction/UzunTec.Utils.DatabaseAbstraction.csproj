@@ -4,8 +4,4 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\UzunTec.Utils.Common\UzunTec.Utils.Common.csproj" />
-  </ItemGroup>
-
 </Project>

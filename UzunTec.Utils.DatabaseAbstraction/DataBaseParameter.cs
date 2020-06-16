@@ -14,9 +14,9 @@ namespace UzunTec.Utils.DatabaseAbstraction
             get { return m_name; }
             set
             {
-                // Removes @ or # from Param name
+                // Removes @ or # or : from Param name
                 char firstChar = value[0];
-                if (firstChar == '#' || firstChar == '@')
+                if (firstChar == '#' || firstChar == '@' || firstChar == ':')
                     m_name = value.Substring(1);
                 else
                     m_name = value;
@@ -27,6 +27,11 @@ namespace UzunTec.Utils.DatabaseAbstraction
         {
             get { return m_value; }
             set { m_value = (value == null) ? DBNull.Value : value; }   // Null case check
+        }
+
+        public override string ToString()
+        {
+            return $"{{{this.ParameterName} : {this.Value}}}";
         }
 
         #region Overload Properties

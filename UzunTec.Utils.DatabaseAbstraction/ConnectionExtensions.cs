@@ -5,7 +5,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 {
     internal static class ConnectionExtensions
     {
-        public static IDbCommand CreateCommand(this IDbConnection connection, string queryString, IEnumerable<DataBaseParameter> parameters)
+        internal static IDbCommand CreateCommand(this IDbConnection connection, string queryString, IEnumerable<DataBaseParameter> parameters)
         {
             IDbCommand command = connection.CreateCommand();
             command.CommandText = queryString;
@@ -13,12 +13,12 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return command;
         }
 
-        public static IDbCommand CreateCommand(this IDbConnection connection, string queryString)
+        internal static IDbCommand CreateCommand(this IDbConnection connection, string queryString)
         {
             return connection.CreateCommand(queryString, null);
         }
 
-        public static void FillParamenters(this IDbCommand command, IEnumerable<DataBaseParameter> parameters)
+        private static void FillParamenters(this IDbCommand command, IEnumerable<DataBaseParameter> parameters)
         {
             if (parameters != null)
             {

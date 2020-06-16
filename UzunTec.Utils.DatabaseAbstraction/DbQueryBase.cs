@@ -11,8 +11,11 @@ namespace UzunTec.Utils.DatabaseAbstraction
         private IDbTransaction dbTransaction;
         private readonly IDbConnection dbConnection;
         private readonly IPaginationFactory paginationFactory;
+        private readonly QueryPreProccess queryPreProcess;
 
         public DatabaseDialect Dialect { get; }
+        public char ParameterIdentifier { get; }
+
 
         public DbQueryBase(IDbConnection connection, string engine = null)
             : this(connection, EnumUtils.GetEnumValue<DatabaseDialect>(engine) ?? DatabaseDialect.NotSet) { }
@@ -22,6 +25,8 @@ namespace UzunTec.Utils.DatabaseAbstraction
             this.dbConnection = connection;
             this.Dialect = dialect;
             this.paginationFactory = PaginationAbstractFactory.GetObject(dialect);
+            this.ParameterIdentifier = '@';        // TODO: Use options
+            this.queryPreProcess = new QueryPreProccess(dialect, this.ParameterIdentifier);
         }
 
         #region IDbTransaction
@@ -71,8 +76,9 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 }
 
                 T output = null;
-                using (IDbCommand command = conn.CreateCommand(queryString, parameters))
+                using (IDbCommand command = conn.CreateCommand(queryString, this.queryPreProcess.PreProcessParameters(queryString, parameters)))
                 {
+                    command.CommandText = this.queryPreProcess.PreProcessQuey(command.CommandText);
                     output = executionFunc(command);
                 }
                 return output;
@@ -110,7 +116,6 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
 
         #region GetResultTable
-
         public DataResultTable GetResultTable(string queryString)
         {
             return this.GetResultTable(queryString, new DataBaseParameter[0]);
@@ -221,8 +226,6 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return this.ExecuteNonQuery(queryString, new DataBaseParameter[0]);
         }
 
-
-
         /// <summary>
         /// To execute INSERT, UPDATE or DELETE queries with params
         /// </summary>
@@ -237,7 +240,6 @@ namespace UzunTec.Utils.DatabaseAbstraction
             {
                 return command.ExecuteNonQuery();
             });
-
         }
 
         /// <summary>

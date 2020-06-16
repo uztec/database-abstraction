@@ -2,6 +2,6 @@
 {
     public enum DatabaseDialect
     {
-        NotSet, SqlServer, MySql, SQLite
+        NotSet, SqlServer, MySql, SQLite, Oracle,
     }
 }
