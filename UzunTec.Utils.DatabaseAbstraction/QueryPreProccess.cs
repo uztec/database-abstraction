@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using UzunTec.Utils.Common;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
     internal class QueryPreProccess
     {
-        private readonly DatabaseDialect dialect;
-        private readonly char paramIdentifier;
-        private readonly char dialectParamIdentifier;
-
+        private readonly AbstractionOptions options;
+        //private readonly char dialectParamIdentifier;
         public Func<string, string> PreProcessQuey { get; }
         public Func<string, IEnumerable<DataBaseParameter>, IEnumerable<DataBaseParameter>> PreProcessParameters { get; }
 
-        internal QueryPreProccess(DatabaseDialect dialect, char paramIdentifier)
+        internal QueryPreProccess(AbstractionOptions options)
         {
-            this.dialect = dialect;
-            this.paramIdentifier = paramIdentifier;
-            this.dialectParamIdentifier = this.GetParamIdentifier(dialect);
+            this.options = options;
 
-            if (this.paramIdentifier == this.dialectParamIdentifier)
+            if (options.QueryParameterIdentifier == options.DialectParameterIdentifier)
             {
                 this.PreProcessQuey = delegate (string s) { return s; };
             }
@@ -28,7 +23,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 this.PreProcessQuey = this.PreProcessQueyForDifferentIdentifiers;
             }
 
-            if (this.dialect == DatabaseDialect.Oracle)  // TODO: Put in options
+            if (options.SortQueryParameters)
             {
                 this.PreProcessParameters = this.SortParamsFromQuery;
             }
@@ -44,7 +39,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
             foreach (DataBaseParameter parameter in parameters)
             {
-                string search = this.paramIdentifier + parameter.ParameterName;
+                string search = this.options.QueryParameterIdentifier + parameter.ParameterName;
                 int pos = -1;
                 do
                 {
@@ -69,7 +64,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
         {
             foreach (DataBaseParameter parameter in parameters)
             {
-                if(parameter.Value is DateTime)
+                if (parameter.Value is DateTime)
                 {
                     DateTime dt = (DateTime)parameter.Value;
                     parameter.Value = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second);
@@ -81,10 +76,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         private string PreProcessQueyForDifferentIdentifiers(string queryString)
         {
-            return queryString.Replace(this.paramIdentifier, this.dialectParamIdentifier);
+            return queryString.Replace(this.options.QueryParameterIdentifier, this.options.DialectParameterIdentifier);
         }
 
-        private char GetParamIdentifier(DatabaseDialect dialect)
+        private char GetDefaultParamIdentifierFromDialect(DatabaseDialect dialect)
         {
             return (dialect == DatabaseDialect.Oracle) ? ':' : '@';
         }

@@ -8,7 +8,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
     {
         public static string GenerateOracleScriptToDebug(string queryString, IEnumerable<DataBaseParameter> parameters, char paramIdentifier = '@')
         {
-            QueryPreProccess preProccess = new QueryPreProccess(DatabaseDialect.Oracle, paramIdentifier);
+            AbstractionOptions options = DefaultDialectOptions.GetDefaultOptions(DatabaseDialect.Oracle);
+            options.QueryParameterIdentifier = paramIdentifier;
+
+            QueryPreProccess preProccess = new QueryPreProccess(options);
             parameters = preProccess.PreProcessParameters(queryString, parameters);
 
             string newQuery = preProccess.PreProcessQuey(queryString);
@@ -26,7 +29,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 if (parameter.Value is DateTime)
                 {
                     DateTime dt = (DateTime)parameter.Value;
-                    output += $"    {parameter.ParameterName} TIMESTAMP(4) := TO_DATE('{dt.ToString("yyyy-MM-dd HH:mm:ss")}', 'YYYY-MM-DD HH24:MI:SS');\n";
+                    output += $"    {parameter.ParameterName} DATE := TO_DATE('{dt.ToString("yyyy-MM-dd HH:mm:ss")}', 'YYYY-MM-DD HH24:MI:SS');\n";
                 }
                 else
                 {

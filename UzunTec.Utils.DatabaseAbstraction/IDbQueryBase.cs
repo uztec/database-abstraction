@@ -4,8 +4,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 {
     public interface IDbQueryBase
     {
-        DatabaseDialect Dialect { get; }
-
+        AbstractionOptions Options { get; }
         void BeginTransaction();
         void CommitTransaction();
         void RollbackTransaction();

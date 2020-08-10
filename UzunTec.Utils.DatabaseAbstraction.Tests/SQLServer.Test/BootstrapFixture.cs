@@ -8,7 +8,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
     public class BootstrapFixture : IDisposable
     {
         private const DatabaseDialect databaseDialect = DatabaseDialect.SqlServer;
-        private const string connectionString = @"Data Source=(localdb)\mssqllocaldb; Database=master; Trusted_Connection=True;";
+        private const string connectionString = @"Data Source=(localdb)\mssqllocaldb; Database=master; Trusted_Connection=True;MultipleActiveResultSets=true;";
         private const string scriptFilePaht = "DbScript.sql";
         private const string dbName = "UZTEC_DB_ABSTRACTION_TEST";
         private readonly DbAbstractionTestContainer container;
