@@ -27,7 +27,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         public void InsertRecord(int index, DataResultRecord record)
         {
-            if (record.Keys.CompareTo(new List<string>(this.Fields.Keys)) != 0)
+            if (record.Keys.CompareList(new List<string>(this.Fields.Keys)) != 0)
             {
                 throw new ArgumentException("This Record does not contains the same fields of this DataResultTable");
             }
