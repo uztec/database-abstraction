@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using UzunTec.Utils.Common;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {

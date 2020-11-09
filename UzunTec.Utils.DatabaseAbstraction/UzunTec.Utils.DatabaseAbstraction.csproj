@@ -2,10 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<PackageId>UzunTec.DatabaseAbstraction</PackageId>
+	<Version>0.1.0</Version>
+	<Authors>Uzun Technology</Authors>
+	<Company>Uzun Technology</Company>
+	<RepositoryUrl>https://github.com/uztec/database-abstraction</RepositoryUrl> 
+	<RepositoryType>git</RepositoryType> 
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
+	<Copyright>© 2019 Uzun Technology</Copyright> 
+	<OutputType>Library</OutputType> 
+	<PackageTags>Database Absctraction Layer MySql SqlServer SQLite Oracle</PackageTags> 
+	<PackageIcon>db-abstraction-uztec.png</PackageIcon> 
+	<Product>UzunTec.Utils.DatabaseAbstraction</Product> 
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UzunTec.Utils.Common\UzunTec.Utils.Common.csproj" />
+    <PackageReference Include="UzunTec.Utils.Common" Version="0.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="db-abstraction-uztec.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
