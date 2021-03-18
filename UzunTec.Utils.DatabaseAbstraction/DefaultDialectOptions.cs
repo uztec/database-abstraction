@@ -15,7 +15,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             {
                 Dialect = dialect,
                 AllowMultipleConnections = (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.Oracle),
-                AutoCloseConnection = (dialect == DatabaseDialect.Oracle),
+                AutoCloseConnection = (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.Oracle),
                 SortQueryParameters = (dialect == DatabaseDialect.Oracle),
                 QueryParameterIdentifier = '@',
                 DialectParameterIdentifier = (dialect == DatabaseDialect.Oracle) ? ':' : '@',

@@ -6,8 +6,8 @@ namespace UzunTec.Utils.DatabaseAbstraction
 {
     internal class QueryExecutionLayerMultipleConnections : IQueryExecutionLayer
     {
-        private AbstractionOptions options;
-        private QueryPreProccess queryPreProcess;
+        private readonly AbstractionOptions options;
+        private readonly QueryPreProccess queryPreProcess;
 
         public QueryExecutionLayerMultipleConnections(AbstractionOptions options, QueryPreProccess queryPreProcess)
         {
@@ -31,7 +31,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
             using (IDbCommand command = conn.CreateCommand(queryString, this.queryPreProcess.PreProcessParameters(queryString, parameters)))
             {
-                command.CommandText = this.queryPreProcess.PreProcessQuey(command.CommandText);
+                command.CommandText = this.queryPreProcess.PreProcessQuery(command.CommandText);
                 output = executionFunc(command);
             }
 

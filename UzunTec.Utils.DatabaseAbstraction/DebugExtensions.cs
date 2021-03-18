@@ -14,7 +14,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             QueryPreProccess preProccess = new QueryPreProccess(options);
             parameters = preProccess.PreProcessParameters(queryString, parameters);
 
-            string newQuery = preProccess.PreProcessQuey(queryString);
+            string newQuery = preProccess.PreProcessQuery(queryString);
             foreach (char c in "\n\t\r")
             {
                 newQuery = newQuery.Replace(c, ' ');
@@ -29,11 +29,11 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 if (parameter.Value is DateTime)
                 {
                     DateTime dt = (DateTime)parameter.Value;
-                    output += $"    {parameter.ParameterName} DATE := TO_DATE('{dt.ToString("yyyy-MM-dd HH:mm:ss")}', 'YYYY-MM-DD HH24:MI:SS');\n";
+                    output += $"    {parameter.ParameterName} DATE := TO_DATE('{dt:yyyy-MM-dd HH:mm:ss}', 'YYYY-MM-DD HH24:MI:SS');\n";
                 }
                 else
                 {
-                    output += $"    {parameter.ParameterName} VARCHAR2({parameter.Value.ToString().Length}) := '{parameter.Value.ToString()}';\n";
+                    output += $"    {parameter.ParameterName} VARCHAR2({parameter.Value.ToString().Length}) := '{parameter.Value}';\n";
                 }
                 parametersNames.Add(parameter.ParameterName);
             }

@@ -34,7 +34,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             {
                 using (IDbCommand command = conn.CreateCommand(queryString, this.queryPreProcess.PreProcessParameters(queryString, parameters)))
                 {
-                    command.CommandText = this.queryPreProcess.PreProcessQuey(command.CommandText);
+                    command.CommandText = this.queryPreProcess.PreProcessQuery(command.CommandText);
                     output = executionFunc(command);
                 }
             }

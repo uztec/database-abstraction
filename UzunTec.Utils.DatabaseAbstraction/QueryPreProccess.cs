@@ -7,7 +7,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
     {
         private readonly AbstractionOptions options;
         //private readonly char dialectParamIdentifier;
-        public Func<string, string> PreProcessQuey { get; }
+        public Func<string, string> PreProcessQuery { get; }
         public Func<string, IEnumerable<DataBaseParameter>, IEnumerable<DataBaseParameter>> PreProcessParameters { get; }
 
         internal QueryPreProccess(AbstractionOptions options)
@@ -16,11 +16,11 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
             if (options.QueryParameterIdentifier == options.DialectParameterIdentifier)
             {
-                this.PreProcessQuey = delegate (string s) { return s; };
+                this.PreProcessQuery = delegate (string s) { return s; };
             }
             else
             {
-                this.PreProcessQuey = this.PreProcessQueyForDifferentIdentifiers;
+                this.PreProcessQuery = this.PreProcessQueyForDifferentIdentifiers;
             }
 
             if (options.SortQueryParameters)
