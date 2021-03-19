@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>UzunTec.DatabaseAbstraction</PackageId>
-	<Version>0.1.0</Version>
+	<Version>0.2.0</Version>
 	<Authors>Uzun Technology</Authors>
 	<Company>Uzun Technology</Company>
 	<RepositoryUrl>https://github.com/uztec/database-abstraction</RepositoryUrl> 

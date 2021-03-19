@@ -4,12 +4,12 @@ using System.Data;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
-    internal class QueryExecutionLayerMultipleConnections : IQueryExecutionLayer
+    internal class QueryExecutionLayer : IQueryExecutionLayer
     {
         private readonly AbstractionOptions options;
         private readonly QueryPreProccess queryPreProcess;
 
-        public QueryExecutionLayerMultipleConnections(AbstractionOptions options, QueryPreProccess queryPreProcess)
+        public QueryExecutionLayer(AbstractionOptions options, QueryPreProccess queryPreProcess)
         {
             this.options = options;
             this.queryPreProcess = queryPreProcess;
@@ -22,12 +22,11 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         public T SafeRunQuery<T>(IDbConnection conn, string queryString, IEnumerable<DataBaseParameter> parameters, Func<IDbCommand, T> executionFunc, bool closeConnection) where T : class
         {
+            T output = null;
             if (conn.State == ConnectionState.Closed)
             {
                 conn.Open();
             }
-
-            T output = null;
 
             using (IDbCommand command = conn.CreateCommand(queryString, this.queryPreProcess.PreProcessParameters(queryString, parameters)))
             {

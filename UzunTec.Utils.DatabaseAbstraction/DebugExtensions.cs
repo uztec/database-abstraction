@@ -41,5 +41,17 @@ namespace UzunTec.Utils.DatabaseAbstraction
             output += $"BEGIN\n     EXECUTE IMMEDIATE sql_query USING {string.Join(",", parametersNames.ToArray())};\n END;\n  /";
             return output;
         }
+
+        public static IEnumerable<DataBaseParameter> TruncateDateTimeParameters(this IEnumerable<DataBaseParameter> parameters)
+        {
+            foreach (DataBaseParameter parameter in parameters)
+            {
+                if (parameter.Value is DateTime dt)
+                {
+                    parameter.Value = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second);
+                }
+            }
+            return parameters;
+        }
     }
 }

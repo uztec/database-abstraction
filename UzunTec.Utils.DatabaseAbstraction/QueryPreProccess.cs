@@ -6,7 +6,6 @@ namespace UzunTec.Utils.DatabaseAbstraction
     internal class QueryPreProccess
     {
         private readonly AbstractionOptions options;
-        //private readonly char dialectParamIdentifier;
         public Func<string, string> PreProcessQuery { get; }
         public Func<string, IEnumerable<DataBaseParameter>, IEnumerable<DataBaseParameter>> PreProcessParameters { get; }
 
@@ -60,28 +59,9 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return dicParameters.Values;
         }
 
-        private IEnumerable<DataBaseParameter> TruncateParamsDateTime(IList<DataBaseParameter> parameters)
-        {
-            foreach (DataBaseParameter parameter in parameters)
-            {
-                if (parameter.Value is DateTime)
-                {
-                    DateTime dt = (DateTime)parameter.Value;
-                    parameter.Value = new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second);
-                }
-            }
-
-            return parameters;
-        }
-
         private string PreProcessQueyForDifferentIdentifiers(string queryString)
         {
             return queryString.Replace(this.options.QueryParameterIdentifier, this.options.DialectParameterIdentifier);
-        }
-
-        private char GetDefaultParamIdentifierFromDialect(DatabaseDialect dialect)
-        {
-            return (dialect == DatabaseDialect.Oracle) ? ':' : '@';
         }
     }
 }

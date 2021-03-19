@@ -22,7 +22,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         public T GetValue<T>(string columnName) where T : struct
         {
-            return this.GetNullableValue<T>(columnName) ?? default(T);
+            return this.GetNullableValue<T>(columnName) ?? default;
         }
 
         public T? GetNullableValue<T>(string columnName) where T : struct
@@ -30,10 +30,11 @@ namespace UzunTec.Utils.DatabaseAbstraction
             object value = (this[columnName] == DBNull.Value) ? null : this[columnName];
             return (value == null) ? (T?)null : (T)Convert.ChangeType(value, typeof(T));
         }
-
+        
+        // TODO: Not Working
         public T GetEnum<T>(string columnName) where T : struct, Enum
         {
-            return this.GetNullableEnum<T>(columnName) ?? default(T);
+            return this.GetNullableEnum<T>(columnName) ?? default;
         }
 
         public T? GetNullableEnum<T>(string columnName) where T : struct, Enum

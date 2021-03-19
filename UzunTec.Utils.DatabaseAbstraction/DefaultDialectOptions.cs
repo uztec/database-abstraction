@@ -14,7 +14,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
             return new AbstractionOptions
             {
                 Dialect = dialect,
-                AllowMultipleConnections = (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.Oracle),
+                UseLockedCommands = (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.MySql),
                 AutoCloseConnection = (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.Oracle),
                 SortQueryParameters = (dialect == DatabaseDialect.Oracle),
                 QueryParameterIdentifier = '@',

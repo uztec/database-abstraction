@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UzunTec.Utils.DatabaseAbstraction
+﻿namespace UzunTec.Utils.DatabaseAbstraction
 {
     internal static class QueryExecutionLayerBuilder
     {
@@ -10,13 +6,13 @@ namespace UzunTec.Utils.DatabaseAbstraction
         {
             QueryPreProccess queryPreProcess = new QueryPreProccess(options);
 
-            if (options.AllowMultipleConnections)
+            if (options.UseLockedCommands)
             {
-                return new QueryExecutionLayerMultipleConnections(options, queryPreProcess);
+                return new QueryExecutionLayerWithLock(options, queryPreProcess);
             }
             else
             {
-                return new QueryExecutionLayerSingleConnection(options, queryPreProcess);
+                return new QueryExecutionLayer(options, queryPreProcess);
             }
         }
     }
