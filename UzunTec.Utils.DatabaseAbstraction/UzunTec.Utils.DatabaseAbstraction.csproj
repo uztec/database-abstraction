@@ -14,6 +14,9 @@
 	<PackageTags>Database Absctraction Layer MySql SqlServer SQLite Oracle</PackageTags> 
 	<PackageIcon>db-abstraction-uztec.png</PackageIcon> 
 	<Product>UzunTec.Utils.DatabaseAbstraction</Product> 
+	<Description>Middleware to excute SQL Queries in multiple engines databases  (e.g. Oracle, MySQL, SQL Server, etc)</Description> 
+	<PackageProjectUrl>https://github.com/uztec/database-abstraction</PackageProjectUrl> 
+	<AssemblyVersion>0.2.2021.0318</AssemblyVersion> 
   </PropertyGroup>
 
   <ItemGroup>
