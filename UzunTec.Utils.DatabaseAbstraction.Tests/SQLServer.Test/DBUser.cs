@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     public class DBUser
     {

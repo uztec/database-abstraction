@@ -4,17 +4,17 @@ namespace UzunTec.Utils.DatabaseAbstraction
 {
     internal static class DefaultDialectOptions
     {
-        public static AbstractionOptions GetDefaultOptions(string engine)
+        public static AbstractionOptions GetDefaultOptions(string engine, bool usingConnectionBuilder)
         {
-            return GetDefaultOptions(EnumUtils.GetEnumValue<DatabaseDialect>(engine) ?? DatabaseDialect.NotSet);
+            return GetDefaultOptions(EnumUtils.GetEnumValue<DatabaseDialect>(engine) ?? DatabaseDialect.NotSet, usingConnectionBuilder);
         }
 
-        public static AbstractionOptions GetDefaultOptions(DatabaseDialect dialect)
+        public static AbstractionOptions GetDefaultOptions(DatabaseDialect dialect, bool usingConnectionBuilder)
         {
             return new AbstractionOptions
             {
                 Dialect = dialect,
-                UseLockedCommands = (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.MySql),
+                UseLockedCommands = (usingConnectionBuilder == false && (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.MySql)),
                 AutoCloseConnection = (dialect == DatabaseDialect.SqlServer || dialect == DatabaseDialect.Oracle),
                 SortQueryParameters = (dialect == DatabaseDialect.Oracle),
                 QueryParameterIdentifier = '@',

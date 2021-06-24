@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     [Collection("BootstrapCollectionFixture")]
     public class DbAbstractionTestLimit
@@ -32,7 +32,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             string query = "SELECT * FROM ( SELECT 1 AS n ";
             for (int i = 1; i < rows; i++)
             {
-                query += $"UNION SELECT {i+1} ";
+                query += $"UNION SELECT {i + 1} ";
             }
 
             query += ") A ORDER BY n " + ((desc) ? "DESC" : "ASC");

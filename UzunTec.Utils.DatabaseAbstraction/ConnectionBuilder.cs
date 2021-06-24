@@ -7,40 +7,97 @@ namespace UzunTec.Utils.DatabaseAbstraction
     public class ConnectionBuilder
     {
         private readonly DbProviderFactory dbFactory;
+        private readonly string connectionString;
+        private readonly IDbConnection dbConnection;
+        private IDbTransaction dbTransaction;
 
-        public ConnectionBuilder(DbProviderFactory providerFactory)
+        public ConnectionBuilder(DbProviderFactory providerFactory, string connectionString)
         {
             this.dbFactory = providerFactory;
+            this.connectionString = connectionString;
         }
 
-        public IDbConnection GetConnection(string server, string databaseName, string user, string password)
+        public ConnectionBuilder(IDbConnection dbConnection)
         {
-            string connectionString = this.GetConnectionString(server, databaseName, user, password);
-            return this.BuildConnection(connectionString);
+            this.dbConnection = dbConnection;
         }
 
-        public IDbConnection GetConnection(string server, string databaseName, int? port, string user, string password)
-        {
-            if (port != null)
-            {
-                server = $"{server},{port}";
-            }
-
-            return this.GetConnection(server, databaseName, user, password);
-        }
-
-        private string GetConnectionString(string server, string databaseName, string user, string password)
-        {
-            return String.Format("Persist Security Info=False;Initial Catalog={0};Data Source={1};User ID={2}; Password={3};",
-                    databaseName, server, user, password);
-        }
-
-        public IDbConnection BuildConnection(string connectionString)
+        public IDbConnection BuildConnection()
         {
             IDbConnection connection = this.dbFactory.CreateConnection();
-            connection.ConnectionString = connectionString;
+            connection.ConnectionString = this.connectionString;
             return connection;
         }
+
+        internal void OpenConnection(Action<IDbConnection, IDbTransaction> action)
+        {
+            if (this.dbConnection == null && this.dbTransaction == null)
+            {
+                using (IDbConnection connection = this.BuildConnection())
+                {
+                    connection.Open();
+                    action(connection, null);
+                }
+            }
+            else if (this.dbTransaction != null)
+            {
+                action(this.dbTransaction.Connection, this.dbTransaction);
+            }
+            else
+            {
+                action(this.dbConnection, null);
+            }
+        }
+
+
+        #region IDbTransaction
+        /// <summary>
+        /// Start DB Transaction
+        /// </summary>
+        public void BeginTransaction()
+        {
+            if (this.dbConnection == null)
+            {
+                if (this.dbTransaction == null)
+                {
+                    IDbConnection conn = this.BuildConnection();
+                    conn.Open();
+                    this.dbTransaction = conn.BeginTransaction();
+                }
+            }
+            else if (this.dbTransaction == null)
+            {
+                if (this.dbConnection.State == ConnectionState.Closed)
+                {
+                    this.dbConnection.Open();
+                }
+                this.dbTransaction = this.dbConnection.BeginTransaction();
+            }
+        }
+
+        /// <summary>
+        /// Finalize and Commit DB Transaction
+        /// </summary>
+        public void CommitTransaction()
+        {
+            IDbConnection conn = this.dbTransaction?.Connection;
+            this.dbTransaction?.Commit();
+            conn?.Close();
+            this.dbTransaction = null;
+        }
+
+        /// <summary>
+        /// Finalize but Rollback DB Transaction
+        /// </summary>
+        public void RollbackTransaction()
+        {
+            IDbConnection conn = this.dbTransaction?.Connection;
+            this.dbTransaction?.Rollback();
+            conn?.Close();
+            this.dbTransaction = null;
+        }
+        #endregion
+
 
     }
 }

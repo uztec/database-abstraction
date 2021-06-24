@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     [Collection("BootstrapCollectionFixture")]
     public class DbAbstractionTestPaging

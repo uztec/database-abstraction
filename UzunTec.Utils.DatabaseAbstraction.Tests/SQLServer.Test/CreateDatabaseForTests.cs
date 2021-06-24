@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     public class CreateDatabaseForTests : IDisposable
     {
@@ -11,7 +11,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
         private const string connectionString = @"Data Source=(localdb)\mssqllocaldb; Database=master; Trusted_Connection=True;MultipleActiveResultSets=false;";
         private const string scriptFilePath = "DbScript.sql";
         private readonly string dbName;
-        private IDbConnection connection;
+        private IDbConnection dbConnection;
 
         public CreateDatabaseForTests(string dbName)
         {
@@ -19,7 +19,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
         }
         public void CreateDatabase()
         {
-            IDbQueryBase dbQueryBase = this.BuildDbQueyBase();
+            IDbQueryBase dbQueryBase = this.BuildDbQueryBase();
             string fullSql = File.ReadAllText(scriptFilePath).Replace("@DBNAME", this.dbName);
 
             foreach (string sql in fullSql.Split(";"))
@@ -30,7 +30,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         public void DropDatabase()
         {
-            IDbQueryBase dbQueryBase = this.BuildDbQueyBase();
+            IDbQueryBase dbQueryBase = this.BuildDbQueryBase();
             dbQueryBase.ExecuteNonQuery("USE [master]");
             dbQueryBase.ExecuteNonQuery($"DROP DATABASE {this.dbName}");
         }
@@ -39,8 +39,8 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
         {
             try
             {
-                this.connection.Close();
-                this.connection.Dispose();
+                this.dbConnection.Close();
+                this.dbConnection.Dispose();
             }
             catch (Exception ex)
             {
@@ -48,19 +48,18 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             }
         }
 
-        private IDbQueryBase BuildDbQueyBase()
+        private IDbQueryBase BuildDbQueryBase()
         {
-            ConnectionBuilder connectionBuilder = new ConnectionBuilder(SqlClientFactory.Instance);
-            this.connection = connectionBuilder.BuildConnection(connectionString);
-            this.connection.Open();
-            return new DbQueryBase(this.connection, new AbstractionOptions
+            ConnectionBuilder connectionBuilder = new ConnectionBuilder(SqlClientFactory.Instance, connectionString);
+            this.dbConnection = connectionBuilder.BuildConnection();
+            return new DbQueryBase(this.dbConnection, new AbstractionOptions
             {
                 AutoCloseConnection = false,
                 Dialect = databaseDialect,
                 DialectParameterIdentifier = '@',
                 QueryParameterIdentifier = '@',
                 SortQueryParameters = false,
-            });
+            }); ;
         }
     }
 }

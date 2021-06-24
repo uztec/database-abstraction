@@ -6,39 +6,43 @@ namespace UzunTec.Utils.DatabaseAbstraction
 {
     public class DbQueryBase : IDbQueryBase
     {
-        private IDbTransaction dbTransaction;
-        private readonly IDbConnection dbConnection;
         private readonly IPaginationFactory paginationFactory;
         private readonly IQueryExecutionLayer exec;
+        private readonly ConnectionBuilder connectionBuilder;
 
         public AbstractionOptions Options { get; }
 
-        public DbQueryBase(IDbConnection connection, string engine = null)
-            : this(connection, DefaultDialectOptions.GetDefaultOptions(engine)) { }
-
-        public DbQueryBase(IDbConnection connection, DatabaseDialect dialect)
-            : this(connection, DefaultDialectOptions.GetDefaultOptions(dialect)) { }
-
-        public DbQueryBase(IDbConnection connection, AbstractionOptions options)
+        public DbQueryBase(ConnectionBuilder connectionBuilder, AbstractionOptions options)
         {
-            this.dbConnection = connection;
+            this.connectionBuilder = connectionBuilder;
             this.Options = options;
             this.paginationFactory = PaginationAbstractFactory.GetObject(options.Dialect);
-            this.exec = QueryExecutionLayerBuilder.Build(options);
+            this.exec = QueryExecutionLayerBuilder.Build(options, connectionBuilder);
         }
 
-        #region IDbTransaction
+        public DbQueryBase(ConnectionBuilder connectionBuilder, string engine = null)
+            : this(connectionBuilder, DefaultDialectOptions.GetDefaultOptions(engine, true)) { }
+
+        public DbQueryBase(ConnectionBuilder connectionBuilder, DatabaseDialect dialect)
+            : this(connectionBuilder, DefaultDialectOptions.GetDefaultOptions(dialect, true)) { }
+
+        public DbQueryBase(IDbConnection connection, string engine = null)
+            : this(new ConnectionBuilder(connection), DefaultDialectOptions.GetDefaultOptions(engine, false)) { }
+
+        public DbQueryBase(IDbConnection connection, DatabaseDialect dialect)
+            : this(new ConnectionBuilder(connection), DefaultDialectOptions.GetDefaultOptions(dialect, false)) { }
+
+        public DbQueryBase(IDbConnection connection, AbstractionOptions options)
+            : this(new ConnectionBuilder(connection), options) { }
+
+
+        #region Transaction
         /// <summary>
         /// Start DB Transaction
         /// </summary>
         public void BeginTransaction()
         {
-            if (this.dbConnection.State == ConnectionState.Open && this.dbTransaction != null)
-            {
-                return;
-            }
-            this.dbConnection.Open();
-            this.dbTransaction = this.dbConnection.BeginTransaction();
+            this.connectionBuilder.BeginTransaction();
         }
 
         /// <summary>
@@ -46,9 +50,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
         /// </summary>
         public void CommitTransaction()
         {
-            this.dbTransaction.Commit();
-            this.dbConnection.Close();
-            this.dbTransaction = null;
+            this.connectionBuilder.CommitTransaction();
         }
 
         /// <summary>
@@ -56,11 +58,10 @@ namespace UzunTec.Utils.DatabaseAbstraction
         /// </summary>
         public void RollbackTransaction()
         {
-            this.dbTransaction.Rollback();
-            this.dbConnection.Close();
-            this.dbTransaction = null;
+            this.connectionBuilder.RollbackTransaction();
         }
         #endregion
+
 
 
         #region Pagination Engine
@@ -111,12 +112,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         public DataResultTable GetResultTable(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
-            if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
-            {
-                return this.GetResultTable(queryString, this.dbTransaction, parameters);
-            }
-
-            return this.exec.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
+            return this.exec.SafeRunQuery(queryString, parameters, delegate (IDbCommand command)
             {
                 return new DataResultTable(command.ExecuteReader());
             });
@@ -129,7 +125,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.GetResultTable(queryString, parameters);
             }
 
-            return this.exec.SafeRunQuery(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            return this.exec.SafeRunQuery(queryString, parameters, delegate (IDbCommand command)
             {
                 command.Transaction = trans;
                 return new DataResultTable(command.ExecuteReader());
@@ -138,12 +134,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         public DataResultTable GetResultTableFromProcedure(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
-            if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
-            {
-                return this.GetResultTableFromProcedure(queryString, this.dbTransaction, parameters);
-            }
-
-            return this.exec.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
+            return this.exec.SafeRunQuery(queryString, parameters, delegate (IDbCommand command)
             {
                 command.CommandType = CommandType.StoredProcedure;
                 return new DataResultTable(command.ExecuteReader());
@@ -157,7 +148,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.GetResultTableFromProcedure(queryString, parameters);
             }
 
-            return this.exec.SafeRunQuery(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            return this.exec.SafeRunQuery(queryString, parameters, delegate (IDbCommand command)
             {
                 command.Transaction = trans;
                 command.CommandType = CommandType.StoredProcedure;
@@ -167,12 +158,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         private DataResultTable GetResultTableWithSingleRow(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
-            if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
-            {
-                return this.GetResultTableFromProcedure(queryString, this.dbTransaction, parameters);
-            }
-
-            return this.exec.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
+            return this.exec.SafeRunQuery(queryString, parameters, delegate (IDbCommand command)
             {
                 return new DataResultTable(command.ExecuteReader(CommandBehavior.SingleRow));
             });
@@ -209,12 +195,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
         /// </summary>
         public int ExecuteNonQuery(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
-            if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
-            {
-                return this.ExecuteNonQuery(queryString, this.dbTransaction, parameters);
-            }
-
-            return (int)this.exec.SafeRunQuery<object>(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
+            return (int)this.exec.SafeRunQuery<object>(queryString, parameters, delegate (IDbCommand command)
             {
                 return command.ExecuteNonQuery();
             });
@@ -230,7 +211,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.ExecuteNonQuery(queryString, parameters);
             }
 
-            return (int)this.exec.SafeRunQuery<object>(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            return (int)this.exec.SafeRunQuery<object>(queryString, parameters, delegate (IDbCommand command)
             {
                 command.Transaction = trans;
                 return command.ExecuteNonQuery();
@@ -248,12 +229,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
         public object ExecuteScalar(string queryString, IEnumerable<DataBaseParameter> parameters)
         {
-            if (this.dbTransaction != null && this.dbTransaction.Connection.State == ConnectionState.Open)
-            {
-                return this.ExecuteScalar(queryString, this.dbTransaction, parameters);
-            }
-
-            return this.exec.SafeRunQuery(this.dbConnection, queryString, parameters, delegate (IDbCommand command)
+            return this.exec.SafeRunQuery(queryString, parameters, delegate (IDbCommand command)
             {
                 return command.ExecuteScalar();
             });
@@ -266,7 +242,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 return this.ExecuteScalar(queryString, parameters);
             }
 
-            return this.exec.SafeRunQuery(trans.Connection, queryString, parameters, delegate (IDbCommand command)
+            return this.exec.SafeRunQuery(queryString, parameters, delegate (IDbCommand command)
             {
                 command.Transaction = trans;
                 return command.ExecuteScalar();
