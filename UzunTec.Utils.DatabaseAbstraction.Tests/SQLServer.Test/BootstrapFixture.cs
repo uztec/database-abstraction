@@ -43,10 +43,8 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         private IDbQueryBase BuildDbQueyBase()
         {
-            ConnectionBuilder connectionBuilder = new ConnectionBuilder(SqlClientFactory.Instance);
-            this.connection = connectionBuilder.BuildConnection(connectionString);
-            this.connection.Open();
-            return new DbQueryBase(this.connection, databaseDialect);
+            ConnectionBuilder connectionBuilder = new ConnectionBuilder(SqlClientFactory.Instance, connectionString);
+            return new DbQueryBase(connectionBuilder, databaseDialect);
         }
     }
 }

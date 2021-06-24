@@ -25,7 +25,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
             this.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            this.Register<IDbConnection>(this.BuildConnection, Lifestyle.Singleton);
             this.Register<IDbQueryBase>(this.BuildDbQueyBase, Lifestyle.Singleton);
 
             this.Register<DBUser>(Lifestyle.Singleton);
@@ -41,16 +40,9 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         private IDbQueryBase BuildDbQueyBase()
         {
-            return new DBBootstrap(this.GetInstance<IDbConnection>(), DatabaseDialect.MySql) ;
-        }
-
-        private IDbConnection BuildConnection()
-        {
             string connectionString = MySqlServer.Instance.GetConnectionString().Replace("Protocol=pipe;", "");
-            ConnectionBuilder connectionBuilder = new ConnectionBuilder(MySqlClientFactory.Instance);
-            IDbConnection connection = connectionBuilder.BuildConnection(connectionString);
-            connection.Open();
-            return connection;
+            ConnectionBuilder connectionBuilder = new ConnectionBuilder(MySqlClientFactory.Instance, connectionString);
+            return new DBBootstrap(connectionBuilder, DatabaseDialect.MySql) ;
         }
     }
 }
