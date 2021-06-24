@@ -26,7 +26,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
         {
             T output = null;
 
-            this.connectionBuilder.OpenConnection(delegate (IDbConnection conn)
+            this.connectionBuilder.OpenConnection(delegate (IDbConnection conn, IDbTransaction trans)
             {
                 if (conn.State == ConnectionState.Closed)
                 {
@@ -35,6 +35,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
 
                 using (IDbCommand command = conn.CreateCommand(queryString, this.queryPreProcess.PreProcessParameters(queryString, parameters)))
                 {
+                    command.Transaction = trans;
                     command.CommandText = this.queryPreProcess.PreProcessQuery(command.CommandText);
                     output = executionFunc(command);
                 }

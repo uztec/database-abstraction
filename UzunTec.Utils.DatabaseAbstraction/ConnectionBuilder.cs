@@ -22,32 +22,33 @@ namespace UzunTec.Utils.DatabaseAbstraction
             this.dbConnection = dbConnection;
         }
 
-        internal void OpenConnection(Action<IDbConnection> action)
+        public IDbConnection BuildConnection()
+        {
+            IDbConnection connection = this.dbFactory.CreateConnection();
+            connection.ConnectionString = this.connectionString;
+            return connection;
+        }
+
+        internal void OpenConnection(Action<IDbConnection, IDbTransaction> action)
         {
             if (this.dbConnection == null && this.dbTransaction == null)
             {
                 using (IDbConnection connection = this.BuildConnection())
                 {
                     connection.Open();
-                    action(connection);
+                    action(connection, null);
                 }
             }
             else if (this.dbTransaction != null)
             {
-                action(this.dbTransaction.Connection);
+                action(this.dbTransaction.Connection, this.dbTransaction);
             }
             else
             {
-                action(this.dbConnection);
+                action(this.dbConnection, null);
             }
         }
 
-        private IDbConnection BuildConnection()
-        {
-            IDbConnection connection = this.dbFactory.CreateConnection();
-            connection.ConnectionString = this.connectionString;
-            return connection;
-        }
 
         #region IDbTransaction
         /// <summary>

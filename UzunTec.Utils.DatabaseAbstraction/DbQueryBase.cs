@@ -21,16 +21,16 @@ namespace UzunTec.Utils.DatabaseAbstraction
         }
 
         public DbQueryBase(ConnectionBuilder connectionBuilder, string engine = null)
-            : this(connectionBuilder, DefaultDialectOptions.GetDefaultOptions(engine)) { }
+            : this(connectionBuilder, DefaultDialectOptions.GetDefaultOptions(engine, true)) { }
 
         public DbQueryBase(ConnectionBuilder connectionBuilder, DatabaseDialect dialect)
-            : this(connectionBuilder, DefaultDialectOptions.GetDefaultOptions(dialect)) { }
+            : this(connectionBuilder, DefaultDialectOptions.GetDefaultOptions(dialect, true)) { }
 
         public DbQueryBase(IDbConnection connection, string engine = null)
-            : this(new ConnectionBuilder(connection), DefaultDialectOptions.GetDefaultOptions(engine)) { }
+            : this(new ConnectionBuilder(connection), DefaultDialectOptions.GetDefaultOptions(engine, false)) { }
 
         public DbQueryBase(IDbConnection connection, DatabaseDialect dialect)
-            : this(new ConnectionBuilder(connection), DefaultDialectOptions.GetDefaultOptions(dialect)) { }
+            : this(new ConnectionBuilder(connection), DefaultDialectOptions.GetDefaultOptions(dialect, false)) { }
 
         public DbQueryBase(IDbConnection connection, AbstractionOptions options)
             : this(new ConnectionBuilder(connection), options) { }

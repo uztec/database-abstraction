@@ -8,7 +8,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
     {
         public static string GenerateOracleScriptToDebug(string queryString, IEnumerable<DataBaseParameter> parameters, char paramIdentifier = '@')
         {
-            AbstractionOptions options = DefaultDialectOptions.GetDefaultOptions(DatabaseDialect.Oracle);
+            AbstractionOptions options = DefaultDialectOptions.GetDefaultOptions(DatabaseDialect.Oracle, false);
             options.QueryParameterIdentifier = paramIdentifier;
 
             QueryPreProccess preProccess = new QueryPreProccess(options);
