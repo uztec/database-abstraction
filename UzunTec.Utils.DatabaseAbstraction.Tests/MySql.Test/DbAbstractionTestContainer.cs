@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Data;
 using MySql.Data.MySqlClient;
 using MySql.Server;
 using SimpleInjector;
-using SimpleInjector.Lifestyles;
+using UzunTec.Utils.DatabaseAbstraction.MySql.Test;
 
 namespace UzunTec.Utils.DatabaseAbstraction.Test
 {
     public class DbAbstractionTestContainer : Container
     {
         public static DbAbstractionTestContainer INSTANCE = new DbAbstractionTestContainer();
+        private readonly string dbTestName = "UZTEC_DB_ABSTRACTION_TEST";
 
         private DbAbstractionTestContainer()
         {
@@ -23,14 +23,28 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 System.Diagnostics.Debug.Write(ex);
             }
 
-            this.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
-
-            this.Register<IDbQueryBase>(this.BuildDbQueyBase, Lifestyle.Singleton);
-
+            this.Register<IDbQueryBase>(this.BuildDbQueryBase, Lifestyle.Singleton);
             this.Register<DBUser>(Lifestyle.Singleton);
             this.Register<UserQueryClient>(Lifestyle.Singleton);
 
+            this.CreateDatabaseForTests();
             this.Verify();
+        }
+
+        private void CreateDatabaseForTests()
+        {
+            string connectionString = this.GetBaseConnectionString();
+            using (CreateDatabaseForTests createDb = new CreateDatabaseForTests(MySqlClientFactory.Instance, connectionString, DatabaseDialect.MySql))
+            {
+                createDb.Create(dbTestName);
+            };
+
+        }
+
+        private string GetBaseConnectionString(string dbName = null)
+        {
+            string baseConnectionString = MySqlServer.Instance.GetConnectionString().Replace("Protocol=pipe;", "");
+            return baseConnectionString + ((dbName != null) ? $"Initial Catalog={dbName};" : "");
         }
 
         ~DbAbstractionTestContainer()
@@ -38,11 +52,11 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             MySqlServer.Instance.ShutDown();
         }
 
-        private IDbQueryBase BuildDbQueyBase()
+        private IDbQueryBase BuildDbQueryBase()
         {
-            string connectionString = MySqlServer.Instance.GetConnectionString().Replace("Protocol=pipe;", "");
+            string connectionString = this.GetBaseConnectionString(this.dbTestName);
             ConnectionBuilder connectionBuilder = new ConnectionBuilder(MySqlClientFactory.Instance, connectionString);
-            return new DBBootstrap(connectionBuilder, DatabaseDialect.MySql) ;
+            return new DbQueryBase(connectionBuilder, DatabaseDialect.MySql);
         }
     }
 }
