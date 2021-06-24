@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     public class UserQueryClient
     {

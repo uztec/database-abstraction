@@ -2,7 +2,7 @@ using System;
 using UzunTec.Utils.Common;
 using Xunit;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     [Collection("BootstrapCollectionFixture")]
     public class DbAbstractionTestInsert

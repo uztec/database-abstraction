@@ -1,7 +1,6 @@
 ﻿using SimpleInjector;
-using SimpleInjector.Lifestyles;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     public class DbAbstractionTestContainer : Container
     {
@@ -15,7 +14,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
 
         private void Initialize()
         {
-            this.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
             this.Register<IDbQueryBase>(delegate () { return this.dbQueryBase; }, Lifestyle.Singleton);
             this.Register<DBUser>(Lifestyle.Singleton);
             this.Register<UserQueryClient>(Lifestyle.Singleton);

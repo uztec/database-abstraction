@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     public static class AssertExt
     {

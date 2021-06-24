@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UzunTec.Utils.Common;
 using Xunit;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     [Collection("BootstrapCollectionFixture")]
     public class DbAbstractionTestList
@@ -20,7 +20,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
         public void InsertUserWithCodRefTest()
         {
             // Removing users
-            this.client.Delete(21,22,23);
+            this.client.Delete(21, 22, 23);
 
             Dictionary<int, User> insertedList = new Dictionary<int, User>();
             insertedList.Add(21, new User
@@ -101,13 +101,13 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 Status = StatusUser.Admin,
             });
 
-            
+
             foreach (User user in insertedList.Values)
             {
-                 Assert.True(this.client.Insert(user));
+                Assert.True(this.client.Insert(user));
             }
 
-            
+
             List<Task> tasks = new List<Task>();
             for (int i = 0; i < 4; i++)
             {

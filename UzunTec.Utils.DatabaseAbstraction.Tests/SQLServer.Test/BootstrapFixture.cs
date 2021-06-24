@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Data;
 using System.Data.SqlClient;
 
-namespace UzunTec.Utils.DatabaseAbstraction.Test
+namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
 {
     public class BootstrapFixture : IDisposable
     {
         private const DatabaseDialect databaseDialect = DatabaseDialect.SqlServer;
         private const string connectionString = @"Data Source=(localdb)\mssqllocaldb; Database=UZTEC_DB_ABSTRACTION_TEST; Trusted_Connection=True;MultipleActiveResultSets=true;";
         private readonly DbAbstractionTestContainer container;
-        private IDbConnection connection;
 
         public BootstrapFixture()
         {
@@ -18,7 +16,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
                 db.CreateDatabase();
             }
 
-            IDbQueryBase dbQueryBase = this.BuildDbQueyBase();
+            IDbQueryBase dbQueryBase = this.BuildDbQueryBase();
             this.container = new DbAbstractionTestContainer(dbQueryBase);
         }
 
@@ -32,8 +30,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             try
             {
                 this.container.Dispose();
-                this.connection.Close();
-                this.connection.Dispose();
             }
             catch (Exception ex)
             {
@@ -41,7 +37,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.Test
             }
         }
 
-        private IDbQueryBase BuildDbQueyBase()
+        private IDbQueryBase BuildDbQueryBase()
         {
             ConnectionBuilder connectionBuilder = new ConnectionBuilder(SqlClientFactory.Instance, connectionString);
             return new DbQueryBase(connectionBuilder, databaseDialect);
