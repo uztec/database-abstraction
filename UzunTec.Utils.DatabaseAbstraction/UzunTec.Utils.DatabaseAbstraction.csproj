@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>UzunTec.DatabaseAbstraction</PackageId>
-	<Version>0.3.0</Version>
+	<Version>0.4.0</Version>
 	<Authors>Uzun Technology</Authors>
 	<Company>Uzun Technology</Company>
 	<RepositoryUrl>https://github.com/uztec/database-abstraction</RepositoryUrl> 
@@ -11,12 +11,12 @@
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
 	<Copyright>© 2019 Uzun Technology</Copyright> 
 	<OutputType>Library</OutputType> 
-	<PackageTags>Database Absctraction Layer MySql SqlServer SQLite Oracle</PackageTags> 
+	<PackageTags>Database Absctraction Layer MySql SqlServer SQLite Oracle PostgreSQL</PackageTags> 
 	<PackageIcon>db-abstraction-uztec.png</PackageIcon> 
 	<Product>UzunTec.Utils.DatabaseAbstraction</Product> 
 	<Description>Middleware to excute SQL Queries in multiple engines databases  (e.g. Oracle, MySQL, SQL Server, etc)</Description> 
 	<PackageProjectUrl>https://github.com/uztec/database-abstraction</PackageProjectUrl> 
-	<AssemblyVersion>0.2.2021.0318</AssemblyVersion> 
+	<AssemblyVersion>0.4.2024.0821</AssemblyVersion> 
   </PropertyGroup>
 
   <ItemGroup>
