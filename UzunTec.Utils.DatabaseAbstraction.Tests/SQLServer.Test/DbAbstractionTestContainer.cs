@@ -17,6 +17,8 @@ namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
             this.Register<IDbQueryBase>(delegate () { return this.dbQueryBase; }, Lifestyle.Singleton);
             this.Register<DBUser>(Lifestyle.Singleton);
             this.Register<UserQueryClient>(Lifestyle.Singleton);
+            this.Register<DBUserAsync>(Lifestyle.Singleton);
+            this.Register<UserQueryClientAsync>(Lifestyle.Singleton);
             this.Verify();
         }
     }

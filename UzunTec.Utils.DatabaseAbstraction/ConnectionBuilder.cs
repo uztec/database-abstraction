@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace UzunTec.Utils.DatabaseAbstraction
 {
@@ -8,8 +9,8 @@ namespace UzunTec.Utils.DatabaseAbstraction
     {
         private readonly DbProviderFactory dbFactory;
         private readonly string connectionString;
-        private readonly IDbConnection dbConnection;
-        private IDbTransaction dbTransaction;
+        private readonly DbConnection dbConnection;
+        private DbTransaction dbTransaction;
 
         public ConnectionBuilder(DbProviderFactory providerFactory, string connectionString)
         {
@@ -17,23 +18,23 @@ namespace UzunTec.Utils.DatabaseAbstraction
             this.connectionString = connectionString;
         }
 
-        public ConnectionBuilder(IDbConnection dbConnection)
+        public ConnectionBuilder(DbConnection dbConnection)
         {
             this.dbConnection = dbConnection;
         }
 
-        public IDbConnection BuildConnection()
+        public DbConnection BuildConnection()
         {
-            IDbConnection connection = this.dbFactory.CreateConnection();
+            DbConnection connection = this.dbFactory.CreateConnection();
             connection.ConnectionString = this.connectionString;
             return connection;
         }
 
-        internal void OpenConnection(Action<IDbConnection, IDbTransaction> action)
+        internal void OpenConnection(Action<DbConnection, DbTransaction> action)
         {
             if (this.dbConnection == null && this.dbTransaction == null)
             {
-                using (IDbConnection connection = this.BuildConnection())
+                using (DbConnection connection = this.BuildConnection())
                 {
                     connection.Open();
                     action(connection, null);
@@ -49,8 +50,28 @@ namespace UzunTec.Utils.DatabaseAbstraction
             }
         }
 
+        internal async Task OpenConnectionAsync(Func<DbConnection, DbTransaction, Task> action)
+        {
+            if (this.dbConnection == null && this.dbTransaction == null)
+            {
+                using (DbConnection connection = this.BuildConnection())
+                {
+                    await connection.OpenAsync().ConfigureAwait(false);
+                    await action(connection, null).ConfigureAwait(false);
+                }
+            }
+            else if (this.dbTransaction != null)
+            {
+                await action(this.dbTransaction.Connection, this.dbTransaction).ConfigureAwait(false);
+            }
+            else
+            {
+                await action(this.dbConnection, null).ConfigureAwait(false);
+            }
+        }
 
-        #region IDbTransaction
+
+        #region DbTransaction
         /// <summary>
         /// Start DB Transaction
         /// </summary>
@@ -62,7 +83,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
                 {
                     IDbConnection conn = this.BuildConnection();
                     conn.Open();
-                    this.dbTransaction = conn.BeginTransaction();
+                    this.dbTransaction = conn.BeginTransaction() as DbTransaction;
                 }
             }
             else if (this.dbTransaction == null)
@@ -80,7 +101,7 @@ namespace UzunTec.Utils.DatabaseAbstraction
         /// </summary>
         public void CommitTransaction()
         {
-            IDbConnection conn = this.dbTransaction?.Connection;
+            DbConnection conn = this.dbTransaction?.Connection;
             this.dbTransaction?.Commit();
             conn?.Close();
             this.dbTransaction = null;
@@ -91,14 +112,12 @@ namespace UzunTec.Utils.DatabaseAbstraction
         /// </summary>
         public void RollbackTransaction()
         {
-            IDbConnection conn = this.dbTransaction?.Connection;
+            DbConnection conn = this.dbTransaction?.Connection;
             this.dbTransaction?.Rollback();
             conn?.Close();
             this.dbTransaction = null;
         }
         #endregion
-
-
     }
 }
 
