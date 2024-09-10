@@ -60,12 +60,12 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
         {
             return (dr == null) ? null : new User
             {
-                UserCode = dr.GetValue<int>("COD_USER"),
-                UserName = dr.GetString("USER_NAME"),
-                UserCodRef = dr.GetNullableValue<long>("COD_USER_REF"),
-                PasswordMd5 = dr.GetString("PASSWORD_MD5"),
-                InputDate = dr.GetValue<DateTime>("INPUT_DATE"),
-                Status = dr.GetEnum<StatusUser>("USER_STATUS")
+                UserCode = dr.GetValue<int>("cod_user"),
+                UserName = dr.GetString("user_name"),
+                UserCodRef = dr.GetNullableValue<long>("cod_user_ref"),
+                PasswordMd5 = dr.GetString("password_md5"),
+                InputDate = dr.GetValue<DateTime>("input_date"),
+                Status = dr.GetEnum<StatusUser>("user_status")
             };
         }
     }

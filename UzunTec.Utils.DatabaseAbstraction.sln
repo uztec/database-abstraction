@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UzunTec.Utils.DatabaseAbstr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UzunTec.Utils.DatabaseAbstraction.MySql.Test", "UzunTec.Utils.DatabaseAbstraction.Tests\MySql.Test\UzunTec.Utils.DatabaseAbstraction.MySql.Test.csproj", "{20668288-2C80-492B-AB44-C7AC31F28844}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test", "UzunTec.Utils.DatabaseAbstraction.Tests\Postgresql.Test\UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test.csproj", "{715CE46E-A096-4E2B-8071-66BD43A862F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test", "UzunTec.Utils.DatabaseAbstraction.Tests\PostgreSQL.Test\UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test.csproj", "{715CE46E-A096-4E2B-8071-66BD43A862F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
