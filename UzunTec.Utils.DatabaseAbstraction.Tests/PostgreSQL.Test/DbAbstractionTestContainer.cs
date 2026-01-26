@@ -1,6 +1,6 @@
 ﻿using SimpleInjector;
 
-namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
+namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 {
     public class DbAbstractionTestContainer : Container
     {

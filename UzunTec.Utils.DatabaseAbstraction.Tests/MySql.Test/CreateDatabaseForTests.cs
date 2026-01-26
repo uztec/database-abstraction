@@ -7,7 +7,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.MySql.Test
 {
     public class CreateDatabaseForTests : IDisposable
     {
-        private readonly IDbConnection dbConnection;
+        private readonly DbConnection dbConnection;
         private readonly IDbQueryBase dbQueryBase;
 
         public CreateDatabaseForTests(DbProviderFactory dbFactory, string connectionString, DatabaseDialect databaseDialect)

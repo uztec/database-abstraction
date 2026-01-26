@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
 
@@ -11,7 +12,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.SQLServer.Test
         private const string connectionString = @"Data Source=(localdb)\mssqllocaldb; Database=master; Trusted_Connection=True;MultipleActiveResultSets=false;";
         private const string scriptFilePath = "DbScript.sql";
         private readonly string dbName;
-        private IDbConnection dbConnection;
+        private DbConnection dbConnection;
 
         public CreateDatabaseForTests(string dbName)
         {
