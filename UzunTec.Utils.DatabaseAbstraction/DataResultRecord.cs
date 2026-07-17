@@ -28,7 +28,9 @@ namespace UzunTec.Utils.DatabaseAbstraction
         public T? GetNullableValue<T>(string columnName) where T : struct
         {
             object value = (this[columnName] == DBNull.Value) ? null : this[columnName];
-            return (value == null) ? (T?)null : (T)Convert.ChangeType(value, typeof(T));
+            return (value == null) ? (T?)null 
+                : value is DateOnly dtOnly ? (T)Convert.ChangeType(dtOnly.ToDateTime(new TimeOnly()), typeof(T))
+                : (T)Convert.ChangeType(value, typeof(T));
         }
         
         // TODO: Not Working

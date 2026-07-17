@@ -15,7 +15,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
         public Task<bool> Insert(User user)
         {
-            return this.dbUser.InsertAsync(user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.InputDate, user.Status);
+            return this.dbUser.InsertAsync(user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.BirthDate, user.InputDate, user.Status);
         }
 
         public async Task<bool> Delete(params int[] userCodes)
@@ -36,7 +36,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
         public async Task<bool> Update(int oldCode, User user)
         {
-            int recordCount = await this.dbUser.UpdateAsync(oldCode, user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.InputDate, user.Status);
+            int recordCount = await this.dbUser.UpdateAsync(oldCode, user.UserCode, user.UserName, user.UserCodRef, user.PasswordMd5, user.BirthDate, user.InputDate, user.Status);
             return recordCount > 0;
         }
 
@@ -64,6 +64,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 UserName = dr.GetString("user_name"),
                 UserCodRef = dr.GetNullableValue<long>("cod_user_ref"),
                 PasswordMd5 = dr.GetString("password_md5"),
+                BirthDate = dr.GetValue<DateTime>("birthdate"),
                 InputDate = dr.GetValue<DateTime>("input_date"),
                 Status = dr.GetEnum<StatusUser>("user_status")
             };

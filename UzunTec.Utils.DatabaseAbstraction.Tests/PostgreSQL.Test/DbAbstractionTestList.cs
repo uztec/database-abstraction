@@ -28,6 +28,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 UserCode = 21,
                 UserCodRef = 2333953423432,
                 UserName = "Test User1",
+                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything"),
                 Status = StatusUser.Guest,
@@ -37,6 +38,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             {
                 UserCode = 22,
                 UserName = "Test User2",
+                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything-else"),
                 Status = StatusUser.Admin,
@@ -46,6 +48,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             {
                 UserCode = 23,
                 UserName = "Test User 3",
+                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("otherthing"),
                 Status = StatusUser.User,
@@ -87,6 +90,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 UserCode = 101,
                 UserCodRef = 2333953423432,
                 UserName = "Test User1",
+                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything"),
                 Status = StatusUser.Guest,
@@ -96,6 +100,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             {
                 UserCode = 102,
                 UserName = "Test User2",
+                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything-else"),
                 Status = StatusUser.Admin,

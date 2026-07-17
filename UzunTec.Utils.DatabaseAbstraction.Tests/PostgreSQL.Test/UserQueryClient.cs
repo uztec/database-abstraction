@@ -61,6 +61,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 UserName = dr.GetString("user_name"),
                 UserCodRef = dr.GetNullableValue<long>("cod_user_ref"),
                 PasswordMd5 = dr.GetString("password_md5"),
+                BirthDate = dr.GetValue<DateTime>("birthdate"),
                 InputDate = dr.GetValue<DateTime>("input_date"),
                 Status = dr.GetEnum<StatusUser>("user_status")
             };
