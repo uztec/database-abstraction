@@ -33,9 +33,9 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
         private IDbQueryBase BuildDbQueryBase()
         {
             const DatabaseDialect databaseDialect = DatabaseDialect.PostgreSQL;
-            const string connectionString = @"User Id=<USERNAME>;Password=<PASS>;Server=<SERVER>;Port=5432;Database=<DATABASE_NAME>";
+            const string connectionString = @"User Id=postgres;Password=postgres-mortadela.123;Server=209.208.27.132;Port=5432;Database=test-db-abstraction";
 
-            throw new ApplicationException("Please follow the instructions");
+            //throw new ApplicationException("Please follow the instructions");
             /* TODO: 
              * Comment throw line (above)
              * Run DbScript.sql file script in your database to create table

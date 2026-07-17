@@ -14,7 +14,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
         internal Task<DataResultRecord> FindByIDAsync(int ID)
         {
-            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE
+            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, BIRTHDATE
 	                                    FROM USER_TEST
                                         WHERE ID_USER = @ID_USER";
 
@@ -28,7 +28,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
         internal Task<DataResultRecord> FindByCodeAsync(int userCode)
         {
-            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, USER_STATUS
+            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, BIRTHDATE, USER_STATUS
 	                                    FROM USER_TEST
                                         WHERE COD_USER = @COD_USER";
 
@@ -40,10 +40,10 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             return this.dbBase.GetSingleRecordAsync(queryString, parameters);
         }
 
-        internal async Task<bool> InsertAsync(int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime inputDate, StatusUser status)
+        internal async Task<bool> InsertAsync(int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime birthDate, DateTime inputDate, StatusUser status)
         {
-            string queryString = @" INSERT INTO USER_TEST (COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, USER_STATUS)
-                                        VALUES(@COD_USER, @USER_NAME, @COD_USER_REF, @PASSWORD_MD5, @INPUT_DATE, @USER_STATUS)";
+            string queryString = @" INSERT INTO USER_TEST (COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, BIRTHDATE, INPUT_DATE, USER_STATUS)
+                                        VALUES(@COD_USER, @USER_NAME, @COD_USER_REF, @PASSWORD_MD5, @BIRTHDATE, @INPUT_DATE, @USER_STATUS)";
 
             DataBaseParameter[] parameters = new DataBaseParameter[]
             {
@@ -51,6 +51,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 new DataBaseParameter("USER_NAME", userName),
                 new DataBaseParameter("COD_USER_REF", userCodeRef),
                 new DataBaseParameter("PASSWORD_MD5", passwordMd5),
+                new DataBaseParameter("BIRTHDATE", birthDate),
                 new DataBaseParameter("INPUT_DATE", inputDate),
                 new DataBaseParameter("USER_STATUS", (char)status),
             };
@@ -75,13 +76,14 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             return (deleted == 1);
         }
 
-        internal Task<int> UpdateAsync(int oldCode, int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime inputDate, StatusUser status)
+        internal Task<int> UpdateAsync(int oldCode, int userCode, string userName, long? userCodeRef, string passwordMd5, DateTime birthDate, DateTime inputDate, StatusUser status)
         {
             string queryString = @" UPDATE USER_TEST
                                         SET COD_USER = @COD_USER,
                                             USER_NAME = @USER_NAME,
                                             COD_USER_REF = @COD_USER_REF,
                                             PASSWORD_MD5 = @PASSWORD_MD5,
+                                            BIRTHDATE = @BIRTHDATE,
                                             INPUT_DATE = @INPUT_DATE,
                                             USER_STATUS = @USER_STATUS
                                        WHERE COD_USER = @OLD_COD_USER";
@@ -93,6 +95,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 new DataBaseParameter("USER_NAME", userName),
                 new DataBaseParameter("COD_USER_REF", userCodeRef),
                 new DataBaseParameter("PASSWORD_MD5", passwordMd5),
+                new DataBaseParameter("BIRTHDATE", birthDate),
                 new DataBaseParameter("INPUT_DATE", inputDate),
                 new DataBaseParameter("USER_STATUS", (char)status),
            };
@@ -102,7 +105,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
         internal Task<DataResultTable> ListAllAsync()
         {
-            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, USER_STATUS
+            string queryString = @" SELECT COD_USER, USER_NAME, COD_USER_REF, PASSWORD_MD5, INPUT_DATE, BIRTHDATE, USER_STATUS
 	                                    FROM USER_TEST";
 
             return this.dbBase.GetResultTableAsync(queryString);
