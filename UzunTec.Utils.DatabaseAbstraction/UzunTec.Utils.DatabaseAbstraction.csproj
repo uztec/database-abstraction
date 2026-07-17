@@ -1,33 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
 	<PackageId>UzunTec.DatabaseAbstraction</PackageId>
-	<Version>0.5.0</Version>
+	<Version>10.0.1</Version>
 	<Authors>Uzun Technology</Authors>
 	<Company>Uzun Technology</Company>
 	<RepositoryUrl>https://github.com/uztec/database-abstraction</RepositoryUrl> 
-	<RepositoryType>git</RepositoryType> 
-	<GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
+	<RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
 	<Copyright>© 2019 Uzun Technology</Copyright> 
-	<OutputType>Library</OutputType> 
+	<OutputType>Library</OutputType>
 	<PackageTags>Database Absctraction Layer MySql SqlServer SQLite Oracle PostgreSQL</PackageTags> 
 	<PackageIcon>db-abstraction-uztec.png</PackageIcon> 
 	<Product>UzunTec.Utils.DatabaseAbstraction</Product> 
 	<Description>Middleware to excute SQL Queries in multiple engines databases  (e.g. Oracle, MySQL, SQL Server, etc)</Description> 
 	<PackageProjectUrl>https://github.com/uztec/database-abstraction</PackageProjectUrl> 
-	<AssemblyVersion>0.5.2024.0903</AssemblyVersion> 
+	<AssemblyVersion>10.0.2026.0717</AssemblyVersion> 
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="UzunTec.Utils.Common" Version="0.1.1" />
+    <PackageReference Include="UzunTec.Utils.Common" Version="0.2.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="db-abstraction-uztec.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+	  <None Include="..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>/</PackagePath>
+	  </None>
+      <None Include="db-abstraction-uztec.png">
+		<Pack>True</Pack>
+		<PackagePath></PackagePath>
+      </None>
   </ItemGroup>
 
 </Project>

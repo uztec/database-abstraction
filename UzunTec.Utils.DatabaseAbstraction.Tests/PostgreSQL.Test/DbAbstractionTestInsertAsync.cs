@@ -1,65 +1,64 @@
 using System;
+using System.Threading.Tasks;
 using UzunTec.Utils.Common;
 using Xunit;
 
 namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 {
     [Collection("BootstrapCollectionFixture")]
-    public class DbAbstractionTestInsert
+    public class DbAbstractionTestInsertAsync
     {
-        private readonly UserQueryClient client;
+        private readonly UserQueryClientAsync client;
 
-        public DbAbstractionTestInsert(BootstrapFixture bootstrap)
+        public DbAbstractionTestInsertAsync(BootstrapFixture bootstrap)
         {
-            this.client = bootstrap.GetInstance<UserQueryClient>();
+            this.client = bootstrap.GetInstance<UserQueryClientAsync>();
         }
 
         [Fact]
-        public void InsertUserWithCodRefTest()
+        public async Task InsertUserWithCodRefTest()
         {
-            this.client.Delete(91);
+            await this.client.Delete(91);
             User userToInsert = new User
             {
                 UserCode = 91,
                 UserCodRef = 423423423432,
                 UserName = "Test User1",
-                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything"),
                 Status = StatusUser.User,
             };
 
-            this.client.Delete(userToInsert.UserCode);  // Avoid Duplicates
+            await this.client.Delete(userToInsert.UserCode);  // Avoid Duplicates
 
-            Assert.True(this.client.Insert(userToInsert));
-            User insertedUser = this.client.FindByCode(userToInsert.UserCode);
+            Assert.True(await this.client.Insert(userToInsert));
+            User insertedUser = await this.client.FindByCode(userToInsert.UserCode);
             Assert.NotNull(insertedUser);
             AssertExt.UsersTheSame(userToInsert, insertedUser);
-            Assert.True(this.client.Delete(insertedUser.UserCode));
+            Assert.True(await this.client.Delete(insertedUser.UserCode));
         }
 
 
         [Fact]
-        public void InsertUserWithoutCodRefTest()
+        public async Task InsertUserWithoutCodRefTest()
         {
-            this.client.Delete(92);
+            await this.client.Delete(92);
             User userToInsert = new User
             {
                 UserCode = 92,
                 UserName = "Test User2",
-                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything-else"),
                 Status = StatusUser.Guest,
             };
 
-            this.client.Delete(userToInsert.UserCode);  // Avoid Duplicates
+            await this.client.Delete(userToInsert.UserCode);  // Avoid Duplicates
 
-            Assert.True(this.client.Insert(userToInsert));
-            User insertedUser = this.client.FindByCode(userToInsert.UserCode);
+            Assert.True(await this.client.Insert(userToInsert));
+            User insertedUser = await this.client.FindByCode(userToInsert.UserCode);
             Assert.NotNull(insertedUser);
             AssertExt.UsersTheSame(insertedUser, userToInsert);
-            Assert.True(this.client.Delete(insertedUser.UserCode));
+            Assert.True(await this.client.Delete(insertedUser.UserCode));
         }
     }
 }

@@ -7,20 +7,20 @@ using Xunit;
 namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 {
     [Collection("BootstrapCollectionFixture")]
-    public class DbAbstractionTestList
+    public class DbAbstractionTestListAsync
     {
-        private readonly UserQueryClient client;
+        private readonly UserQueryClientAsync client;
 
-        public DbAbstractionTestList(BootstrapFixture bootstrap)
+        public DbAbstractionTestListAsync(BootstrapFixture bootstrap)
         {
-            this.client = bootstrap.GetInstance<UserQueryClient>();
+            this.client = bootstrap.GetInstance<UserQueryClientAsync>();
         }
 
         [Fact]
-        public void InsertUserWithCodRefTest()
+        public async Task InsertUserWithCodRefTest()
         {
             // Removing users
-            this.client.Delete(21, 22, 23);
+            await this.client.Delete(21, 22, 23);
 
             Dictionary<int, User> insertedList = new Dictionary<int, User>();
             insertedList.Add(21, new User
@@ -28,7 +28,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 UserCode = 21,
                 UserCodRef = 2333953423432,
                 UserName = "Test User1",
-                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything"),
                 Status = StatusUser.Guest,
@@ -38,7 +37,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             {
                 UserCode = 22,
                 UserName = "Test User2",
-                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything-else"),
                 Status = StatusUser.Admin,
@@ -48,7 +46,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             {
                 UserCode = 23,
                 UserName = "Test User 3",
-                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("otherthing"),
                 Status = StatusUser.User,
@@ -57,10 +54,10 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
             foreach (User user in insertedList.Values)
             {
-                Assert.True(this.client.Insert(user));
+                Assert.True(await this.client.Insert(user));
             }
 
-            List<User> users = this.client.ListAll();
+            List<User> users = await this.client.ListAll();
 
             Assert.NotNull(users);
             Assert.True(users.Count > 2);
@@ -73,16 +70,16 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
             foreach (int cod in insertedList.Keys)
             {
-                Assert.True(this.client.Delete(cod));
+                Assert.True(await this.client.Delete(cod));
             }
         }
 
 
         [Fact]
-        public void InsertUserMultTasks()
+        public async Task InsertUserMultTasks()
         {
             // Removing users
-            this.client.Delete(101, 102);
+            await this.client.Delete(101, 102);
 
             Dictionary<int, User> insertedList = new Dictionary<int, User>();
             insertedList.Add(101, new User
@@ -90,7 +87,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
                 UserCode = 101,
                 UserCodRef = 2333953423432,
                 UserName = "Test User1",
-                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything"),
                 Status = StatusUser.Guest,
@@ -100,7 +96,6 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
             {
                 UserCode = 102,
                 UserName = "Test User2",
-                BirthDate = new DateTime(2000,1,1),
                 InputDate = DateTime.Now,
                 PasswordMd5 = MD5Hash.CalculateMD5Hash("anything-else"),
                 Status = StatusUser.Admin,
@@ -109,17 +104,17 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
             foreach (User user in insertedList.Values)
             {
-                Assert.True(this.client.Insert(user));
+                Assert.True(await this.client.Insert(user));
             }
 
 
             List<Task> tasks = new List<Task>();
             for (int i = 0; i < 4; i++)
             {
-                tasks.Add(Task.Run(() => this.client.ListAll()));
+                tasks.Add(Task.Run(async () => await this.client.ListAll()));
             }
 
-            List<User> users = this.client.ListAll();
+            List<User> users = await this.client.ListAll();
             Task.WaitAll(tasks.ToArray());
             Assert.NotNull(users);
             Assert.True(users.Count > 1);
@@ -132,7 +127,7 @@ namespace UzunTec.Utils.DatabaseAbstraction.PostgreSQL.Test
 
             foreach (int cod in insertedList.Keys)
             {
-                Assert.True(this.client.Delete(cod));
+                Assert.True(await this.client.Delete(cod));
             }
         }
     }
